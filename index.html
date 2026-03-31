@@ -91,7 +91,7 @@
   .weekdays span:first-child{color:#E24B4A;}
   .weekdays span:last-child{color:var(--dad);}
   .days-grid{display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid var(--border);}
-  .day{min-height:90px;padding:8px 6px 6px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;}
+  .day{height:90px;padding:8px 6px 6px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;overflow:hidden;}
   .day:nth-child(7n){border-right:none;}
   .day:hover{background:#FAFAF8;}
   .day.other-month{background:#FAFAF8;}
@@ -104,8 +104,8 @@
   .day.sun .dnum{color:#E24B4A;}
   .day.sat .dnum{color:var(--dad);}
   .ecount{font-size:10px;color:var(--text-muted);}
-  .day-pills{display:flex;flex-direction:column;gap:2px;}
-  .epill{font-size:10px;padding:2px 6px;border-radius:4px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-weight:500;line-height:1.4;}
+  .day-pills{display:flex;flex-direction:column;gap:2px;overflow:hidden;}
+  .epill{font-size:10px;padding:2px 5px;border-radius:4px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-weight:500;line-height:1.4;max-width:100%;display:block;}
   .more-label{font-size:10px;color:var(--text-muted);padding:0 4px;}
 
   /* DETAIL PANEL */
@@ -199,6 +199,29 @@
   .pcb-cancel:hover{background:var(--bg);}
   .change-pin-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:5px 12px;cursor:pointer;font-size:12px;color:var(--text-muted);font-family:'Noto Sans KR',sans-serif;transition:all .15s;}
   .change-pin-btn:hover{background:var(--bg);color:var(--text);}
+
+  /* ADMIN 모달 */
+  .admin-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;padding:20px;}
+  .admin-bg.open{display:flex;}
+  .admin-box{background:var(--surface);border-radius:22px;padding:28px 24px 22px;width:100%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:fadeUp .2s ease;}
+  .admin-title{font-size:17px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+  .admin-sub{font-size:12px;color:var(--text-muted);margin-bottom:20px;}
+  .admin-member-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;background:var(--bg);margin-bottom:8px;}
+  .admin-member-info{flex:1;}
+  .admin-member-name{font-size:14px;font-weight:600;}
+  .admin-member-pin{font-size:11px;color:var(--text-muted);margin-top:2px;}
+  .admin-reset-btn{padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:white;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;color:#E24B4A;font-weight:500;transition:all .15s;}
+  .admin-reset-btn:hover{background:#fff0f0;border-color:#E24B4A;}
+  .admin-divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
+  .admin-cancel{width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:none;cursor:pointer;font-size:13px;font-family:'Noto Sans KR',sans-serif;color:var(--text-muted);}
+  .admin-cancel:hover{background:var(--bg);}
+  /* 관리자 PIN 입력 */
+  .admin-pin-area{text-align:center;}
+  .admin-pin-label{font-size:13px;color:var(--text-muted);margin-bottom:12px;}
+  .admin-pin-dots{display:flex;justify-content:center;gap:14px;margin-bottom:14px;}
+  .admin-pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--border);transition:all .15s;}
+  .admin-pin-dot.filled{border-color:#E24B4A;background:#E24B4A;}
+  .admin-err{font-size:12px;color:#E24B4A;min-height:18px;margin-bottom:4px;text-align:center;}
 
   /* UTILS */
   .loading{position:fixed;inset:0;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:12px;}
@@ -305,6 +328,32 @@
     </div>
   </div>
 
+  <!-- 관리자 모달 -->
+  <div class="admin-bg" id="admin-bg">
+    <div class="admin-box">
+      <div class="admin-title">🔐 관리자 모드</div>
+      <div class="admin-sub" id="admin-sub">관리자 PIN을 입력하세요</div>
+      <!-- 관리자 PIN 입력 영역 -->
+      <div id="admin-pin-area" class="admin-pin-area">
+        <div class="admin-pin-label">관리자 PIN 4자리</div>
+        <div class="admin-pin-dots" id="admin-pin-dots">
+          <div class="admin-pin-dot" id="apd0"></div>
+          <div class="admin-pin-dot" id="apd1"></div>
+          <div class="admin-pin-dot" id="apd2"></div>
+          <div class="admin-pin-dot" id="apd3"></div>
+        </div>
+        <div class="admin-err" id="admin-pin-err"></div>
+        <div class="pcb-keypad" id="admin-keypad"></div>
+      </div>
+      <!-- 멤버 PIN 관리 영역 -->
+      <div id="admin-manage-area" style="display:none;">
+        <div id="admin-member-list"></div>
+        <hr class="admin-divider">
+      </div>
+      <button class="admin-cancel" onclick="closeAdmin()">닫기</button>
+    </div>
+  </div>
+
   <header class="app-header">
     <div class="app-title">우리 가족<span> 캘린더</span></div>
     <div class="header-right">
@@ -313,6 +362,7 @@
       <div class="member-filters" id="mfilt"></div>
       <div class="cur-user-badge" id="cur-badge"></div>
       <button class="change-pin-btn" id="change-pin-btn">🔑 PIN 변경</button>
+      <button class="change-pin-btn" id="admin-btn" style="color:#E24B4A;border-color:rgba(226,75,74,0.3);">🔐 관리자</button>
       <button class="logout-btn" id="logout-btn">로그아웃</button>
     </div>
   </header>
@@ -361,7 +411,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, onValue, get, push, remove, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const FB = { apiKey:"AIzaSyBZbMt-2k65C5fVPdGHtF_fa1Lw3CDZj5Y",authDomain:"hansong2ne-calendar.firebaseapp.com",databaseURL:"https://hansong2ne-calendar-default-rtdb.firebaseio.com",projectId:"hansong2ne-calendar",storageBucket:"hansong2ne-calendar.firebasestorage.app",messagingSenderId:"737884329068",appId:"1:737884329068:web:8a274de25a45d71385b449" };
 const db = getDatabase(initializeApp(FB));
@@ -459,10 +509,10 @@ function updateDots() {
   }
 }
 
-function tryLogin() {
+async function tryLogin() {
   if (!pendingMember) return;
-  // Firebase에서 PIN 확인 (없으면 기본값 사용)
-  onValue(ref(db, `pins/${pendingMember.id}`), snap => {
+  try {
+    const snap = await get(ref(db, `pins/${pendingMember.id}`));
     const stored = snap.val() || pendingMember.pin;
     if (pinBuffer === stored) {
       currentUser = pendingMember;
@@ -474,7 +524,10 @@ function tryLogin() {
       document.getElementById('pin-error').textContent = 'PIN이 틀렸어요. 다시 시도해보세요.';
       pinBuffer = ''; updateDots();
     }
-  }, { onlyOnce: true });
+  } catch(e) {
+    document.getElementById('pin-error').textContent = '연결 오류가 발생했어요';
+    pinBuffer = ''; updateDots();
+  }
 }
 
 document.getElementById('pin-back').onclick = buildMemberBtns;
@@ -493,6 +546,9 @@ function setupApp() {
 
   // PIN 변경 버튼
   document.getElementById('change-pin-btn').onclick = () => openPinChange();
+
+  // 관리자 버튼
+  document.getElementById('admin-btn').onclick = () => openAdmin();
 
   // 로그아웃
   document.getElementById('logout-btn').onclick = () => {
@@ -605,9 +661,10 @@ function handlePcbKey(step, k) {
   updatePcbDots(step);
   if(buf.length===4) setTimeout(()=>handlePcbComplete(step),150);
 }
-function handlePcbComplete(step) {
+async function handlePcbComplete(step) {
   if(step===1) {
-    onValue(ref(db,`pins/${currentUser.id}`), snap=>{
+    try {
+      const snap = await get(ref(db,`pins/${currentUser.id}`));
       const stored=snap.val()||currentUser.pin;
       if(pcbBuf1===stored){
         document.getElementById('pcb-step1').classList.remove('active');
@@ -618,7 +675,10 @@ function handlePcbComplete(step) {
         document.getElementById('pcb-err1').textContent='현재 PIN이 틀렸어요';
         pcbBuf1=''; updatePcbDots(1);
       }
-    },{onlyOnce:true});
+    } catch(e) {
+      document.getElementById('pcb-err1').textContent='연결 오류가 발생했어요';
+      pcbBuf1=''; updatePcbDots(1);
+    }
   } else if(step===2) {
     document.getElementById('pcb-step2').classList.remove('active');
     document.getElementById('pcb-step3').classList.add('active');
@@ -672,6 +732,198 @@ window.delEvt = async function(key) {
 /* ══════════════════════════════
    렌더링
 ══════════════════════════════ */
+/* ══ 관리자 기능 ══ */
+/* ════════════════════════════════════════
+   관리자 PIN — SHA-256 해시 방식
+   ▸ 소스엔 초기 기본값만 존재 (최초 1회 사용 후 Firebase 해시로 대체)
+   ▸ 이후엔 소스의 기본값은 완전히 무의미해짐
+   ════════════════════════════════════════ */
+const ADMIN_PIN_DEFAULT = '0000'; // ← 최초 배포 전에 원하는 값으로 변경 후 삭제해도 됨
+
+async function sha256(text) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+let adminBuf = '';
+let adminMode = 'login'; // 'login' | 'manage' | 'changePin'
+let adminChangeBuf1 = '', adminChangeBuf2 = '';
+let adminChangeStep = 1;
+
+window.openAdmin = function() {
+  adminBuf = '';
+  adminMode = 'login';
+  document.getElementById('admin-pin-area').style.display = 'block';
+  document.getElementById('admin-manage-area').style.display = 'none';
+  document.getElementById('admin-sub').textContent = '관리자 PIN을 입력하세요';
+  document.getElementById('admin-pin-err').textContent = '';
+  buildAdminKeypad('login');
+  updateAdminDots('login');
+  document.getElementById('admin-bg').classList.add('open');
+};
+
+window.closeAdmin = function() {
+  document.getElementById('admin-bg').classList.remove('open');
+};
+
+document.getElementById('admin-bg').onclick = e => {
+  if (e.target === document.getElementById('admin-bg')) closeAdmin();
+};
+
+function buildAdminKeypad(mode) {
+  const kp = document.getElementById('admin-keypad'); kp.innerHTML = '';
+  [1,2,3,4,5,6,7,8,9,'',0,'⌫'].forEach(k => {
+    if (k === '') { kp.appendChild(document.createElement('div')); return; }
+    const btn = document.createElement('button');
+    btn.className = k === '⌫' ? 'pk-del' : 'pk-btn';
+    btn.style.cssText = 'padding:13px;font-size:17px;';
+    btn.textContent = k;
+    btn.onclick = () => handleAdminKey(k, mode);
+    kp.appendChild(btn);
+  });
+}
+
+function handleAdminKey(k, mode) {
+  if (mode === 'login') {
+    if (k === '⌫') adminBuf = adminBuf.slice(0,-1);
+    else if (adminBuf.length < 4) adminBuf += k;
+    updateAdminDots('login');
+    if (adminBuf.length === 4) setTimeout(tryAdminLogin, 150);
+  } else if (mode === 'change1') {
+    if (k === '⌫') adminChangeBuf1 = adminChangeBuf1.slice(0,-1);
+    else if (adminChangeBuf1.length < 4) adminChangeBuf1 += k;
+    updateAdminDots('change1');
+    if (adminChangeBuf1.length === 4) setTimeout(adminChangePinStep2, 150);
+  } else if (mode === 'change2') {
+    if (k === '⌫') adminChangeBuf2 = adminChangeBuf2.slice(0,-1);
+    else if (adminChangeBuf2.length < 4) adminChangeBuf2 += k;
+    updateAdminDots('change2');
+    if (adminChangeBuf2.length === 4) setTimeout(adminChangePinConfirm, 150);
+  }
+}
+
+function updateAdminDots(mode) {
+  const buf = mode === 'login' ? adminBuf : mode === 'change1' ? adminChangeBuf1 : adminChangeBuf2;
+  for (let i = 0; i < 4; i++) {
+    document.getElementById(`apd${i}`).classList.toggle('filled', i < buf.length);
+  }
+}
+
+async function tryAdminLogin() {
+  const inputHash = await sha256(adminBuf);
+  try {
+    const snap = await get(ref(db, 'admin/pin'));
+    const storedHash = snap.val();
+    let valid = false;
+    if (storedHash) {
+      valid = (inputHash === storedHash);
+    } else {
+      // Firebase에 해시 없음 → 기본값과 비교 후 즉시 해시 저장
+      const defaultHash = await sha256(ADMIN_PIN_DEFAULT);
+      if (inputHash === defaultHash) {
+        await update(ref(db, 'admin'), { pin: defaultHash });
+        valid = true;
+      }
+    }
+    if (valid) {
+      adminMode = 'manage';
+      document.getElementById('admin-pin-area').style.display = 'none';
+      document.getElementById('admin-manage-area').style.display = 'block';
+      document.getElementById('admin-sub').textContent = '멤버별 PIN을 초기화할 수 있어요';
+      renderAdminMemberList();
+    } else {
+      document.getElementById('admin-pin-err').textContent = '관리자 PIN이 틀렸어요';
+      adminBuf = ''; updateAdminDots('login');
+    }
+  } catch(e) {
+    document.getElementById('admin-pin-err').textContent = '연결 오류가 발생했어요';
+    adminBuf = ''; updateAdminDots('login');
+  }
+}
+
+/* 관리자 PIN 변경 */
+window.openAdminChangePin = function() {
+  adminChangeBuf1 = ''; adminChangeBuf2 = ''; adminChangeStep = 1;
+  document.getElementById('admin-sub').textContent = '새 관리자 PIN을 입력하세요';
+  document.getElementById('admin-pin-err').textContent = '';
+  document.getElementById('admin-manage-area').style.display = 'none';
+  document.getElementById('admin-pin-area').style.display = 'block';
+  document.querySelector('.admin-pin-label').textContent = '새 관리자 PIN 4자리';
+  // dots 초기화
+  for (let i = 0; i < 4; i++) document.getElementById(`apd${i}`).classList.remove('filled');
+  buildAdminKeypad('change1');
+};
+
+function adminChangePinStep2() {
+  adminChangeStep = 2;
+  document.getElementById('admin-sub').textContent = '새 PIN을 한 번 더 입력하세요';
+  document.querySelector('.admin-pin-label').textContent = 'PIN 확인';
+  for (let i = 0; i < 4; i++) document.getElementById(`apd${i}`).classList.remove('filled');
+  buildAdminKeypad('change2');
+}
+
+async function adminChangePinConfirm() {
+  if (adminChangeBuf1 === adminChangeBuf2) {
+    const newHash = await sha256(adminChangeBuf1);
+    await update(ref(db, 'admin'), { pin: newHash });
+    document.getElementById('admin-pin-area').style.display = 'none';
+    document.getElementById('admin-manage-area').style.display = 'block';
+    document.getElementById('admin-sub').textContent = '멤버별 PIN을 초기화할 수 있어요';
+    document.querySelector('.admin-pin-label').textContent = '관리자 PIN 4자리';
+    toast('관리자 PIN이 변경됐어요 ✓');
+    renderAdminMemberList();
+  } else {
+    document.getElementById('admin-pin-err').textContent = 'PIN이 일치하지 않아요. 다시 시도해주세요';
+    adminChangeBuf1 = ''; adminChangeBuf2 = '';
+    for (let i = 0; i < 4; i++) document.getElementById(`apd${i}`).classList.remove('filled');
+    setTimeout(() => {
+      document.getElementById('admin-pin-err').textContent = '';
+      adminChangePinStep2 && buildAdminKeypad('change1');
+      document.getElementById('admin-sub').textContent = '새 관리자 PIN을 다시 입력하세요';
+      document.querySelector('.admin-pin-label').textContent = '새 관리자 PIN 4자리';
+      buildAdminKeypad('change1');
+      adminChangeStep = 1;
+    }, 900);
+  }
+}
+
+function renderAdminMemberList() {
+  const list = document.getElementById('admin-member-list');
+  list.innerHTML = '';
+  onValue(ref(db, 'pins'), snap => {
+    const pins = snap.val() || {};
+    list.innerHTML = '';
+    MEMBERS.forEach(m => {
+      const pinStatus = pins[m.id] ? '변경됨' : '기본값';
+      const row = document.createElement('div');
+      row.className = 'admin-member-row';
+      row.innerHTML = `
+        <div style="font-size:24px;">${m.emoji}</div>
+        <div class="admin-member-info">
+          <div class="admin-member-name" style="color:${m.dark}">${m.label}</div>
+          <div class="admin-member-pin">PIN 상태: ${pinStatus} · 초기화시 기본 PIN으로 복원</div>
+        </div>
+        <button class="admin-reset-btn" onclick="adminResetPin('${m.id}','${m.label}','${m.pin}')">초기화</button>
+      `;
+      list.appendChild(row);
+    });
+    // 관리자 PIN 변경 버튼
+    const changeBtn = document.createElement('button');
+    changeBtn.style.cssText = 'width:100%;margin-top:4px;padding:9px;border-radius:10px;border:1.5px dashed rgba(226,75,74,0.4);background:none;cursor:pointer;font-size:12px;font-family:"Noto Sans KR",sans-serif;color:#E24B4A;';
+    changeBtn.textContent = '🔑 관리자 PIN 변경';
+    changeBtn.onclick = openAdminChangePin;
+    list.appendChild(changeBtn);
+  }, { onlyOnce: true });
+}
+
+window.adminResetPin = async function(memberId, memberLabel, defaultPin) {
+  if (!confirm(`${memberLabel}의 PIN을 기본값(${defaultPin})으로 초기화할까요?`)) return;
+  await remove(ref(db, `pins/${memberId}`));
+  toast(`${memberLabel}의 PIN이 기본값(${defaultPin})으로 초기화됐어요 ✓`);
+  renderAdminMemberList();
+};
+
+
 function renderMemberFilter() {
   const el = document.getElementById('mfilt'); el.innerHTML = '';
   MEMBERS.forEach(m => {
@@ -706,8 +958,8 @@ function renderCalendar() {
     el.appendChild(dr);
     if(c.cur&&c.ds){
       const pills=document.createElement('div'); pills.className='day-pills';
-      dayEvts.slice(0,3).forEach(e=>{const m=MEMBERS.find(x=>x.id===e.member);const p=document.createElement('div');p.className='epill';p.style.cssText=`background:${m.light};color:${m.dark};`;p.textContent=(e.time?e.time+' ':'')+e.title;pills.appendChild(p);});
-      if(dayEvts.length>3){const mo=document.createElement('div');mo.className='more-label';mo.textContent=`+${dayEvts.length-3}건`;pills.appendChild(mo);}
+      dayEvts.slice(0,2).forEach(e=>{const m=MEMBERS.find(x=>x.id===e.member);const p=document.createElement('div');p.className='epill';p.style.cssText=`background:${m.light};color:${m.dark};`;p.textContent=(e.time?e.time+' ':'')+e.title;pills.appendChild(p);});
+      if(dayEvts.length>2){const mo=document.createElement('div');mo.className='more-label';mo.textContent=`+${dayEvts.length-2}건 더`;pills.appendChild(mo);}
       el.appendChild(pills); el.onclick=()=>openDetail(c.ds);
     }
     grid.appendChild(el);
