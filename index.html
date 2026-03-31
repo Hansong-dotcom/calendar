@@ -181,6 +181,25 @@
   .leg-count{font-size:12px;color:var(--text-muted);}
   .no-data{font-size:12px;color:var(--text-muted);text-align:center;padding:16px 0;}
 
+  /* PIN 변경 모달 */
+  .pin-change-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:400;align-items:center;justify-content:center;padding:20px;}
+  .pin-change-bg.open{display:flex;}
+  .pin-change-box{background:var(--surface);border-radius:22px;padding:28px 24px 22px;width:100%;max-width:320px;box-shadow:0 16px 48px rgba(0,0,0,.15);animation:fadeUp .2s ease;text-align:center;}
+  .pcb-title{font-size:17px;font-weight:700;margin-bottom:4px;color:var(--text);}
+  .pcb-sub{font-size:12px;color:var(--text-muted);margin-bottom:20px;}
+  .pcb-step{display:none;}
+  .pcb-step.active{display:block;}
+  .pcb-label{font-size:13px;color:var(--text-muted);margin-bottom:12px;}
+  .pcb-dots{display:flex;justify-content:center;gap:14px;margin-bottom:14px;}
+  .pcb-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--border);transition:all .15s;}
+  .pcb-dot.filled{border-color:var(--cur-color,#3A86FF);background:var(--cur-color,#3A86FF);}
+  .pcb-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+  .pcb-error{font-size:12px;color:#E24B4A;min-height:18px;margin-bottom:4px;}
+  .pcb-cancel{width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:none;cursor:pointer;font-size:13px;font-family:'Noto Sans KR',sans-serif;color:var(--text-muted);margin-top:4px;}
+  .pcb-cancel:hover{background:var(--bg);}
+  .change-pin-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:5px 12px;cursor:pointer;font-size:12px;color:var(--text-muted);font-family:'Noto Sans KR',sans-serif;transition:all .15s;}
+  .change-pin-btn:hover{background:var(--bg);color:var(--text);}
+
   /* UTILS */
   .loading{position:fixed;inset:0;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:12px;}
   .loading.hidden{display:none;}
@@ -232,6 +251,45 @@
 <!-- ══ APP ══ -->
 <div class="app-screen" id="app-screen">
 
+  <!-- PIN 변경 모달 -->
+  <div class="pin-change-bg" id="pin-change-bg">
+    <div class="pin-change-box">
+      <div class="pcb-title" id="pcb-title">PIN 변경</div>
+      <div class="pcb-sub" id="pcb-sub">본인 확인을 위해 현재 PIN을 입력하세요</div>
+      <!-- step1: 현재 PIN 확인 -->
+      <div class="pcb-step active" id="pcb-step1">
+        <div class="pcb-label">현재 PIN</div>
+        <div class="pcb-dots" id="pcb-dots1">
+          <div class="pcb-dot" id="pcd1-0"></div><div class="pcb-dot" id="pcd1-1"></div>
+          <div class="pcb-dot" id="pcd1-2"></div><div class="pcb-dot" id="pcd1-3"></div>
+        </div>
+        <div class="pcb-error" id="pcb-err1"></div>
+        <div class="pcb-keypad" id="pcb-kp1"></div>
+      </div>
+      <!-- step2: 새 PIN 입력 -->
+      <div class="pcb-step" id="pcb-step2">
+        <div class="pcb-label">새 PIN 4자리 입력</div>
+        <div class="pcb-dots" id="pcb-dots2">
+          <div class="pcb-dot" id="pcd2-0"></div><div class="pcb-dot" id="pcd2-1"></div>
+          <div class="pcb-dot" id="pcd2-2"></div><div class="pcb-dot" id="pcd2-3"></div>
+        </div>
+        <div class="pcb-error" id="pcb-err2"></div>
+        <div class="pcb-keypad" id="pcb-kp2"></div>
+      </div>
+      <!-- step3: 새 PIN 확인 -->
+      <div class="pcb-step" id="pcb-step3">
+        <div class="pcb-label">새 PIN 한 번 더 입력</div>
+        <div class="pcb-dots" id="pcb-dots3">
+          <div class="pcb-dot" id="pcd3-0"></div><div class="pcb-dot" id="pcd3-1"></div>
+          <div class="pcb-dot" id="pcd3-2"></div><div class="pcb-dot" id="pcd3-3"></div>
+        </div>
+        <div class="pcb-error" id="pcb-err3"></div>
+        <div class="pcb-keypad" id="pcb-kp3"></div>
+      </div>
+      <button class="pcb-cancel" onclick="closePinChange()">취소</button>
+    </div>
+  </div>
+
   <!-- 수정 모달 -->
   <div class="modal-bg" id="edit-modal-bg">
     <div class="modal-box">
@@ -254,6 +312,7 @@
       <span class="sync-label" id="sync-label">연결 중...</span>
       <div class="member-filters" id="mfilt"></div>
       <div class="cur-user-badge" id="cur-badge"></div>
+      <button class="change-pin-btn" id="change-pin-btn">🔑 PIN 변경</button>
       <button class="logout-btn" id="logout-btn">로그아웃</button>
     </div>
   </header>
@@ -369,7 +428,7 @@ function showPin(m) {
   document.getElementById('pin-name-display').textContent = m.label;
   document.getElementById('pin-name-display').style.color = m.dark;
   document.getElementById('pin-error').textContent = '';
-  document.getElementById('pin-hint').textContent = `초기 PIN — 아빠: 1234 · 엄마: 2345 · 딸: 3456`;
+  document.getElementById('pin-hint').textContent = '';
   // CSS 변수로 색상 전달
   document.documentElement.style.setProperty('--cur-color', m.color);
   buildKeypad(m);
@@ -432,6 +491,9 @@ function setupApp() {
   // 수정 저장 버튼 색상
   document.getElementById('em-save').style.background = currentUser.color;
 
+  // PIN 변경 버튼
+  document.getElementById('change-pin-btn').onclick = () => openPinChange();
+
   // 로그아웃
   document.getElementById('logout-btn').onclick = () => {
     sessionStorage.removeItem('loggedMember');
@@ -489,6 +551,97 @@ function setupApp() {
   document.getElementById('prev').onclick   = () => { curM--; if(curM<0){curM=11;curY--;} renderCalendar(); renderLegend(); };
   document.getElementById('next').onclick   = () => { curM++; if(curM>11){curM=0;curY++;} renderCalendar(); renderLegend(); };
   document.getElementById('go-today').onclick = () => { curY=today.getFullYear(); curM=today.getMonth(); renderCalendar(); renderLegend(); };
+}
+
+/* ══ PIN 변경 ══ */
+let pcbStep = 1, pcbBuf1 = '', pcbBuf2 = '', pcbBuf3 = '';
+
+window.openPinChange = function() {
+  pcbStep=1; pcbBuf1=''; pcbBuf2=''; pcbBuf3='';
+  document.documentElement.style.setProperty('--cur-color', currentUser.color);
+  document.getElementById('pcb-title').textContent = `${currentUser.emoji} ${currentUser.label} PIN 변경`;
+  document.getElementById('pcb-sub').textContent = '본인 확인을 위해 현재 PIN을 입력하세요';
+  ['pcb-step1','pcb-step2','pcb-step3'].forEach((id,i)=>{
+    document.getElementById(id).classList.toggle('active', i===0);
+  });
+  ['pcb-err1','pcb-err2','pcb-err3'].forEach(id=>document.getElementById(id).textContent='');
+  buildPcbKeypad(1); buildPcbKeypad(2); buildPcbKeypad(3);
+  updatePcbDots(1); updatePcbDots(2); updatePcbDots(3);
+  document.getElementById('pin-change-bg').classList.add('open');
+};
+window.closePinChange = function() {
+  document.getElementById('pin-change-bg').classList.remove('open');
+};
+document.getElementById('pin-change-bg').onclick = e => {
+  if (e.target===document.getElementById('pin-change-bg')) closePinChange();
+};
+
+function buildPcbKeypad(step) {
+  const kp = document.getElementById(`pcb-kp${step}`); kp.innerHTML='';
+  [1,2,3,4,5,6,7,8,9,'',0,'⌫'].forEach(k=>{
+    if(k===''){const sp=document.createElement('div');kp.appendChild(sp);return;}
+    const btn=document.createElement('button');
+    btn.className=k==='⌫'?'pk-del':'pk-btn';
+    btn.style.cssText='padding:13px;font-size:17px;';
+    btn.textContent=k;
+    btn.onclick=()=>handlePcbKey(step,k);
+    kp.appendChild(btn);
+  });
+}
+function updatePcbDots(step) {
+  const buf = step===1?pcbBuf1:step===2?pcbBuf2:pcbBuf3;
+  for(let i=0;i<4;i++){
+    const d=document.getElementById(`pcd${step}-${i}`);
+    d.classList.toggle('filled', i<buf.length);
+  }
+}
+function handlePcbKey(step, k) {
+  let buf = step===1?pcbBuf1:step===2?pcbBuf2:pcbBuf3;
+  if(k==='⌫') buf=buf.slice(0,-1);
+  else if(buf.length<4) buf+=k;
+  if(step===1) pcbBuf1=buf;
+  else if(step===2) pcbBuf2=buf;
+  else pcbBuf3=buf;
+  updatePcbDots(step);
+  if(buf.length===4) setTimeout(()=>handlePcbComplete(step),150);
+}
+function handlePcbComplete(step) {
+  if(step===1) {
+    onValue(ref(db,`pins/${currentUser.id}`), snap=>{
+      const stored=snap.val()||currentUser.pin;
+      if(pcbBuf1===stored){
+        document.getElementById('pcb-step1').classList.remove('active');
+        document.getElementById('pcb-step2').classList.add('active');
+        document.getElementById('pcb-sub').textContent='새로운 PIN을 설정해주세요';
+        pcbStep=2;
+      } else {
+        document.getElementById('pcb-err1').textContent='현재 PIN이 틀렸어요';
+        pcbBuf1=''; updatePcbDots(1);
+      }
+    },{onlyOnce:true});
+  } else if(step===2) {
+    document.getElementById('pcb-step2').classList.remove('active');
+    document.getElementById('pcb-step3').classList.add('active');
+    document.getElementById('pcb-sub').textContent='새 PIN을 한 번 더 확인할게요';
+    pcbStep=3;
+  } else if(step===3) {
+    if(pcbBuf2===pcbBuf3){
+      update(ref(db,`pins`),{[currentUser.id]:pcbBuf2}).then(()=>{
+        closePinChange();
+        toast(`${currentUser.label}의 PIN이 변경됐어요 ✓`);
+      });
+    } else {
+      document.getElementById('pcb-err3').textContent='PIN이 일치하지 않아요. 다시 입력해주세요';
+      pcbBuf3=''; updatePcbDots(3);
+      // step2로 다시
+      setTimeout(()=>{
+        document.getElementById('pcb-step3').classList.remove('active');
+        document.getElementById('pcb-step2').classList.add('active');
+        document.getElementById('pcb-sub').textContent='새로운 PIN을 다시 입력해주세요';
+        pcbBuf2=''; updatePcbDots(2); pcbStep=2;
+      },800);
+    }
+  }
 }
 
 /* ══ 수정 모달 ══ */
