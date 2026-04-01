@@ -1,0 +1,405 @@
+[2026-04-01T01:07:05.427Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[2026-04-01T01:07:05.429Z] > authorizing via signed-in user (khsong5844@gmail.com)
+[2026-04-01T01:07:05.429Z] [iam] checking project hansong2ne-calendar for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[2026-04-01T01:07:05.430Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:05.431Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:05.433Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/hansong2ne-calendar:testIamPermissions [none]
+[2026-04-01T01:07:05.433Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/hansong2ne-calendar:testIamPermissions  x-goog-user-project=hansong2ne-calendar
+[2026-04-01T01:07:05.434Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/hansong2ne-calendar:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[2026-04-01T01:07:06.178Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/hansong2ne-calendar:testIamPermissions 200
+[2026-04-01T01:07:06.179Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/hansong2ne-calendar:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[2026-04-01T01:07:06.179Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:06.179Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:06.180Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/hansong2ne-calendar/serviceAccounts/hansong2ne-calendar@appspot.gserviceaccount.com:testIamPermissions [none]
+[2026-04-01T01:07:06.180Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/hansong2ne-calendar/serviceAccounts/hansong2ne-calendar@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[2026-04-01T01:07:07.290Z] <<< [apiv2][status] POST https://iam.googleapis.com/v1/projects/hansong2ne-calendar/serviceAccounts/hansong2ne-calendar@appspot.gserviceaccount.com:testIamPermissions 200
+[2026-04-01T01:07:07.291Z] <<< [apiv2][body] POST https://iam.googleapis.com/v1/projects/hansong2ne-calendar/serviceAccounts/hansong2ne-calendar@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+
+=== Deploying to 'hansong2ne-calendar'...
+
+i  deploying functions 
+[2026-04-01T01:07:07.294Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:07.294Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:07.294Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/hansong2ne-calendar [none]
+[2026-04-01T01:07:07.509Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/hansong2ne-calendar 200
+[2026-04-01T01:07:07.509Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/hansong2ne-calendar {"projectNumber":"737884329068","projectId":"hansong2ne-calendar","lifecycleState":"ACTIVE","name":"Hansong2ne-Calendar","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2026-03-25T07:28:43.897Z"}
+i  functions: preparing codebase default for deployment 
+i  functions: ensuring required API cloudfunctions.googleapis.com is enabled... 
+i  functions: ensuring required API cloudbuild.googleapis.com is enabled... 
+i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled... 
+[2026-04-01T01:07:07.513Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:07.513Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:07.513Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/hansong2ne-calendar/adminSdkConfig [none]
+[2026-04-01T01:07:07.994Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/hansong2ne-calendar/adminSdkConfig 200
+[2026-04-01T01:07:07.994Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/hansong2ne-calendar/adminSdkConfig {"projectId":"hansong2ne-calendar","databaseURL":"https://hansong2ne-calendar-default-rtdb.firebaseio.com","storageBucket":"hansong2ne-calendar.firebasestorage.app"}
+[2026-04-01T01:07:07.996Z] Validating nodejs source
+!  functions: Runtime Node.js 20 will be deprecated on 2026-04-30 and will be decommissioned on 2026-10-30, after which you will not be able to deploy without upgrading. Consider upgrading now to avoid disruption. See https://cloud.google.com/functions/docs/runtime-support for full details on the lifecycle policy 
+[2026-04-01T01:07:10.337Z] > [functions] package.json contents: {
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.0.0",
+    "firebase-functions": "^5.0.0"
+  },
+  "private": true
+}
+[2026-04-01T01:07:10.337Z] Building nodejs source
+i  functions: Loading and analyzing source code for codebase default to determine what to deploy 
+[2026-04-01T01:07:10.338Z] Could not find functions.yaml. Must use http discovery
+[2026-04-01T01:07:10.350Z] Found firebase-functions binary at 'C:\Users\admin\calendar\functions\node_modules\.bin\firebase-functions'
+Serving at port 8338
+
+[2026-04-01T01:07:11.225Z] Got response from /__/functions.yaml {"endpoints":{"onEventCreated":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["asia-northeast1"],"labels":{},"eventTrigger":{"eventType":"google.firebase.database.ref.v1.created","eventFilters":{},"eventFilterPathPatterns":{"ref":"events/{eventId}","instance":"*"},"retry":false},"entryPoint":"onEventCreated"},"onEventDeleted":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["asia-northeast1"],"labels":{},"eventTrigger":{"eventType":"google.firebase.database.ref.v1.deleted","eventFilters":{},"eventFilterPathPatterns":{"ref":"events/{eventId}","instance":"*"},"retry":false},"entryPoint":"onEventDeleted"},"onEventUpdated":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["asia-northeast1"],"labels":{},"eventTrigger":{"eventType":"google.firebase.database.ref.v1.updated","eventFilters":{},"eventFilterPathPatterns":{"ref":"events/{eventId}","instance":"*"},"retry":false},"entryPoint":"onEventUpdated"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+i  extensions: ensuring required API firebaseextensions.googleapis.com is enabled... 
+[2026-04-01T01:07:15.318Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[2026-04-01T01:07:15.318Z] > authorizing via signed-in user (khsong5844@gmail.com)
+[2026-04-01T01:07:15.318Z] [iam] checking project hansong2ne-calendar for permissions ["firebase.projects.get","firebaseextensions.instances.list"]
+[2026-04-01T01:07:15.318Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:15.318Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:15.319Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/hansong2ne-calendar:testIamPermissions [none]
+[2026-04-01T01:07:15.319Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/hansong2ne-calendar:testIamPermissions  x-goog-user-project=hansong2ne-calendar
+[2026-04-01T01:07:15.319Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/hansong2ne-calendar:testIamPermissions {"permissions":["firebase.projects.get","firebaseextensions.instances.list"]}
+[2026-04-01T01:07:15.562Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/hansong2ne-calendar:testIamPermissions 200
+[2026-04-01T01:07:15.562Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/hansong2ne-calendar:testIamPermissions {"permissions":["firebase.projects.get","firebaseextensions.instances.list"]}
+[2026-04-01T01:07:15.562Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:15.563Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:15.563Z] >>> [apiv2][query] GET https://firebaseextensions.googleapis.com/v1beta/projects/hansong2ne-calendar/instances pageSize=100&pageToken=
+[2026-04-01T01:07:16.511Z] <<< [apiv2][status] GET https://firebaseextensions.googleapis.com/v1beta/projects/hansong2ne-calendar/instances 200
+[2026-04-01T01:07:16.511Z] <<< [apiv2][body] GET https://firebaseextensions.googleapis.com/v1beta/projects/hansong2ne-calendar/instances {}
+i  functions: preparing functions directory for uploading... 
+i  functions: packaged C:\Users\admin\calendar\functions (73.12 KB) for uploading 
+[2026-04-01T01:07:16.562Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:16.563Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:16.563Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v1/projects/hansong2ne-calendar/locations/-/functions [none]
+[2026-04-01T01:07:17.400Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v1/projects/hansong2ne-calendar/locations/-/functions 200
+[2026-04-01T01:07:17.401Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v1/projects/hansong2ne-calendar/locations/-/functions {}
+[2026-04-01T01:07:17.401Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:17.401Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:17.401Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v2/projects/hansong2ne-calendar/locations/-/functions filter=environment%3D%22GEN_2%22
+[2026-04-01T01:07:18.862Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v2/projects/hansong2ne-calendar/locations/-/functions 200
+[2026-04-01T01:07:18.862Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v2/projects/hansong2ne-calendar/locations/-/functions {}
+i  functions: ensuring required API run.googleapis.com is enabled... 
+i  functions: ensuring required API eventarc.googleapis.com is enabled... 
+i  functions: ensuring required API pubsub.googleapis.com is enabled... 
+i  functions: ensuring required API storage.googleapis.com is enabled... 
+i  functions: generating the service identity for pubsub.googleapis.com... 
+[2026-04-01T01:07:18.867Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:18.867Z] Checked if tokens are valid: true, expires at: 1775008121931
+i  functions: generating the service identity for eventarc.googleapis.com... 
+[2026-04-01T01:07:18.867Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:18.868Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:18.868Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1beta1/projects/737884329068/services/pubsub.googleapis.com:generateServiceIdentity [none]
+[2026-04-01T01:07:18.868Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1beta1/projects/737884329068/services/pubsub.googleapis.com:generateServiceIdentity  x-goog-user-project=737884329068
+[2026-04-01T01:07:18.868Z] >>> [apiv2][body] POST https://serviceusage.googleapis.com/v1beta1/projects/737884329068/services/pubsub.googleapis.com:generateServiceIdentity {}
+[2026-04-01T01:07:18.869Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1beta1/projects/737884329068/services/eventarc.googleapis.com:generateServiceIdentity [none]
+[2026-04-01T01:07:18.869Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1beta1/projects/737884329068/services/eventarc.googleapis.com:generateServiceIdentity  x-goog-user-project=737884329068
+[2026-04-01T01:07:18.870Z] >>> [apiv2][body] POST https://serviceusage.googleapis.com/v1beta1/projects/737884329068/services/eventarc.googleapis.com:generateServiceIdentity {}
+[2026-04-01T01:07:20.347Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1beta1/projects/737884329068/services/eventarc.googleapis.com:generateServiceIdentity 200
+[2026-04-01T01:07:20.347Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1beta1/projects/737884329068/services/eventarc.googleapis.com:generateServiceIdentity {"name":"operations/finished.DONE_OPERATION","done":true,"response":{"@type":"type.googleapis.com/google.api.serviceusage.v1beta1.ServiceIdentity","email":"service-737884329068@gcp-sa-eventarc.iam.gserviceaccount.com","uniqueId":"105148175340582488159"}}
+[2026-04-01T01:07:20.396Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1beta1/projects/737884329068/services/pubsub.googleapis.com:generateServiceIdentity 200
+[2026-04-01T01:07:20.396Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1beta1/projects/737884329068/services/pubsub.googleapis.com:generateServiceIdentity {"name":"operations/finished.DONE_OPERATION","done":true,"response":{"@type":"type.googleapis.com/google.api.serviceusage.v1beta1.ServiceIdentity","email":"service-737884329068@gcp-sa-pubsub.iam.gserviceaccount.com","uniqueId":"105314687904853601528"}}
+[2026-04-01T01:07:20.398Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:20.398Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:20.399Z] >>> [apiv2][query] GET https://compute.googleapis.com/compute/v1/projects/737884329068 [none]
+[2026-04-01T01:07:20.883Z] <<< [apiv2][status] GET https://compute.googleapis.com/compute/v1/projects/737884329068 200
+[2026-04-01T01:07:20.883Z] <<< [apiv2][body] GET https://compute.googleapis.com/compute/v1/projects/737884329068 {"kind":"compute#project","id":"8067841639044994050","creationTimestamp":"2026-03-31T17:46:37.576-07:00","name":"hansong2ne-calendar","commonInstanceMetadata":{"kind":"compute#metadata","fingerprint":"NO-9RiRx6AU="},"quotas":[{"metric":"SNAPSHOTS","limit":1000,"usage":0},{"metric":"NETWORKS","limit":5,"usage":1},{"metric":"FIREWALLS","limit":100,"usage":4},{"metric":"IMAGES","limit":100,"usage":0},{"metric":"STATIC_ADDRESSES","limit":8,"usage":0},{"metric":"ROUTES","limit":200,"usage":0},{"metric":"FORWARDING_RULES","limit":15,"usage":0},{"metric":"TARGET_POOLS","limit":50,"usage":0},{"metric":"HEALTH_CHECKS","limit":75,"usage":0},{"metric":"IN_USE_ADDRESSES","limit":8,"usage":0},{"metric":"TARGET_INSTANCES","limit":50,"usage":0},{"metric":"TARGET_HTTP_PROXIES","limit":10,"usage":0},{"metric":"URL_MAPS","limit":10,"usage":0},{"metric":"BACKEND_SERVICES","limit":50,"usage":0},{"metric":"INSTANCE_TEMPLATES","limit":100,"usage":0},{"metric":"TARGET_VPN_GATEWAYS","limit":5,"usage":0},{"metric":"VPN_TUNNELS","limit":10,"usage":0},{"metric":"BACKEND_BUCKETS","limit":3,"usage":0},{"metric":"ROUTERS","limit":10,"usage":0},{"metric":"TARGET_SSL_PROXIES","limit":10,"usage":0},{"metric":"TARGET_HTTPS_PROXIES","limit":10,"usage":0},{"metric":"SSL_CERTIFICATES","limit":10,"usage":0},{"metric":"SUBNETWORKS","limit":100,"usage":0},{"metric":"TARGET_TCP_PROXIES","limit":10,"usage":0},{"metric":"CPUS_ALL_REGIONS","limit":32,"usage":0},{"metric":"SECURITY_POLICIES","limit":10,"usage":0},{"metric":"SECURITY_POLICY_RULES","limit":100,"usage":0},{"metric":"XPN_SERVICE_PROJECTS","limit":1000,"usage":0},{"metric":"PACKET_MIRRORINGS","limit":20,"usage":0},{"metric":"NETWORK_ENDPOINT_GROUPS","limit":100,"usage":0},{"metric":"INTERCONNECTS","limit":6,"usage":0},{"metric":"SSL_POLICIES","limit":10,"usage":0},{"metric":"GLOBAL_INTERNAL_ADDRESSES","limit":5000,"usage":0},{"metric":"VPN_GATEWAYS","limit":5,"usage":0},{"metric":"MACHINE_IMAGES","limit":100,"usage":0},{"metric":"SECURITY_POLICY_CEVAL_RULES","limit":20,"usage":0},{"metric":"GPUS_ALL_REGIONS","limit":0,"usage":0},{"metric":"EXTERNAL_VPN_GATEWAYS","limit":5,"usage":0},{"metric":"PUBLIC_ADVERTISED_PREFIXES","limit":1,"usage":0},{"metric":"PUBLIC_DELEGATED_PREFIXES","limit":10,"usage":0},{"metric":"STATIC_BYOIP_ADDRESSES","limit":128,"usage":0},{"metric":"NETWORK_FIREWALL_POLICIES","limit":10,"usage":0},{"metric":"INTERNAL_TRAFFIC_DIRECTOR_FORWARDING_RULES","limit":15,"usage":0},{"metric":"GLOBAL_EXTERNAL_MANAGED_FORWARDING_RULES","limit":15,"usage":0},{"metric":"GLOBAL_INTERNAL_MANAGED_BACKEND_SERVICES","limit":50,"usage":0},{"metric":"GLOBAL_EXTERNAL_MANAGED_BACKEND_SERVICES","limit":50,"usage":0},{"metric":"GLOBAL_EXTERNAL_PROXY_LB_BACKEND_SERVICES","limit":50,"usage":0},{"metric":"GLOBAL_INTERNAL_TRAFFIC_DIRECTOR_BACKEND_SERVICES","limit":250,"usage":0}],"selfLink":"https://www.googleapis.com/compute/v1/projects/hansong2ne-calendar","defaultServiceAccount":"737884329068-compute@developer.gserviceaccount.com","xpnProjectStatus":"UNSPECIFIED_XPN_PROJECT_STATUS","defaultNetworkTier":"PREMIUM","vmDnsSetting":"ZONAL_ONLY","cloudArmorTier":"CA_STANDARD"}
+[2026-04-01T01:07:20.884Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:20.884Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:20.884Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/737884329068:getIamPolicy [none]
+[2026-04-01T01:07:21.291Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/737884329068:getIamPolicy 200
+[2026-04-01T01:07:21.292Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/737884329068:getIamPolicy {"version":1,"etag":"BwZOW2qSTQk=","bindings":[{"role":"roles/cloudbuild.builds.builder","members":["serviceAccount:737884329068@cloudbuild.gserviceaccount.com"]},{"role":"roles/cloudbuild.serviceAgent","members":["serviceAccount:service-737884329068@gcp-sa-cloudbuild.iam.gserviceaccount.com"]},{"role":"roles/cloudfunctions.serviceAgent","members":["serviceAccount:service-737884329068@gcf-admin-robot.iam.gserviceaccount.com"]},{"role":"roles/compute.instanceGroupManagerServiceAgent","members":["serviceAccount:737884329068@cloudservices.gserviceaccount.com"]},{"role":"roles/compute.serviceAgent","members":["serviceAccount:service-737884329068@compute-system.iam.gserviceaccount.com"]},{"role":"roles/containerregistry.ServiceAgent","members":["serviceAccount:service-737884329068@containerregistry.iam.gserviceaccount.com"]},{"role":"roles/editor","members":["serviceAccount:737884329068-compute@developer.gserviceaccount.com","serviceAccount:737884329068@cloudservices.gserviceaccount.com","serviceAccount:hansong2ne-calendar@appspot.gserviceaccount.com"]},{"role":"roles/eventarc.eventReceiver","members":["serviceAccount:737884329068-compute@developer.gserviceaccount.com"]},{"role":"roles/eventarc.serviceAgent","members":["serviceAccount:service-737884329068@gcp-sa-eventarc.iam.gserviceaccount.com"]},{"role":"roles/firebase.managementServiceAgent","members":["serviceAccount:service-737884329068@gcp-sa-firebase.iam.gserviceaccount.com"]},{"role":"roles/firebase.sdkAdminServiceAgent","members":["serviceAccount:firebase-adminsdk-fbsvc@hansong2ne-calendar.iam.gserviceaccount.com"]},{"role":"roles/firebaseauth.admin","members":["serviceAccount:firebase-adminsdk-fbsvc@hansong2ne-calendar.iam.gserviceaccount.com"]},{"role":"roles/firebasedatabase.admin","members":["serviceAccount:firebase-adminsdk-fbsvc@hansong2ne-calendar.iam.gserviceaccount.com"]},{"role":"roles/firebasemods.serviceAgent","members":["serviceAccount:service-737884329068@gcp-sa-firebasemods.iam.gserviceaccount.com"]},{"role":"roles/iam.serviceAccountTokenCreator","members":["serviceAccount:firebase-adminsdk-fbsvc@hansong2ne-calendar.iam.gserviceaccount.com","serviceAccount:service-737884329068@gcp-sa-pubsub.iam.gserviceaccount.com"]},{"role":"roles/owner","members":["user:khsong5844@gmail.com"]},{"role":"roles/run.invoker","members":["serviceAccount:737884329068-compute@developer.gserviceaccount.com"]},{"role":"roles/run.serviceAgent","members":["serviceAccount:service-737884329068@serverless-robot-prod.iam.gserviceaccount.com"]}]}
+[2026-04-01T01:07:21.293Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:21.293Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:21.293Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/hansong2ne-calendar [none]
+[2026-04-01T01:07:21.746Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/hansong2ne-calendar 200
+[2026-04-01T01:07:21.746Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/hansong2ne-calendar {"projectNumber":"737884329068","projectId":"hansong2ne-calendar","lifecycleState":"ACTIVE","name":"Hansong2ne-Calendar","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2026-03-25T07:28:43.897Z"}
+[2026-04-01T01:07:21.748Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:21.748Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:21.748Z] >>> [apiv2][query] GET https://cloudbilling.googleapis.com/v1/projects/hansong2ne-calendar/billingInfo [none]
+[2026-04-01T01:07:23.096Z] <<< [apiv2][status] GET https://cloudbilling.googleapis.com/v1/projects/hansong2ne-calendar/billingInfo 200
+[2026-04-01T01:07:23.096Z] <<< [apiv2][body] GET https://cloudbilling.googleapis.com/v1/projects/hansong2ne-calendar/billingInfo {"name":"projects/hansong2ne-calendar/billingInfo","projectId":"hansong2ne-calendar","billingAccountName":"billingAccounts/0158C2-350CAB-91F2DD","billingEnabled":true}
+[2026-04-01T01:07:23.098Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:23.098Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:23.098Z] >>> [apiv2][query] POST https://cloudfunctions.googleapis.com/v2/projects/hansong2ne-calendar/locations/asia-northeast1/functions:generateUploadUrl [none]
+[2026-04-01T01:07:23.495Z] <<< [apiv2][status] POST https://cloudfunctions.googleapis.com/v2/projects/hansong2ne-calendar/locations/asia-northeast1/functions:generateUploadUrl 200
+[2026-04-01T01:07:23.495Z] <<< [apiv2][body] POST https://cloudfunctions.googleapis.com/v2/projects/hansong2ne-calendar/locations/asia-northeast1/functions:generateUploadUrl {"uploadUrl":"https://storage.googleapis.com/gcf-v2-uploads-737884329068.asia-northeast1.cloudfunctions.appspot.com/8715fe94-7e1e-431e-88f2-ff1a88abc559.zip?GoogleAccessId=service-737884329068@gcf-admin-robot.iam.gserviceaccount.com&Expires=1775007443&Signature=1mHAdzx6aV5VzjqSKRa5AeopzdzGJOk5unLBsf009bL2rGDre3K45Vyif1OnES0hE4cBS2Jm4gsqTEQtfzocOmjqwMN%2FF%2FdLymI9ev2b4dRZtIgVTEzqOSaswlOpoiUkOn%2FvZskk6LshkkuDvAP%2ByAslSBWOMK4ks7IlgqHXGTLIi00FLg0c2%2F%2FDXGcgYKwzzv%2FOh3YAnx%2Bo32XID9N5cxPfira6SdxwVEZTl8%2BwT4P4UuqiHQNk736lNXvD20MrQeKnNGHAsvuHrQjB9qm7vYYD7bqPQmnDb5rdU2SGcTtEYDT5VuekF5rTIAy9BA9%2B%2BrLYyouNCZBsyPXar9pUJQ%3D%3D","storageSource":{"bucket":"gcf-v2-uploads-737884329068.asia-northeast1.cloudfunctions.appspot.com","object":"8715fe94-7e1e-431e-88f2-ff1a88abc559.zip"}}
+[2026-04-01T01:07:23.496Z] >>> [apiv2][query] PUT https://storage.googleapis.com/gcf-v2-uploads-737884329068.asia-northeast1.cloudfunctions.appspot.com/8715fe94-7e1e-431e-88f2-ff1a88abc559.zip GoogleAccessId=service-737884329068%40gcf-admin-robot.iam.gserviceaccount.com&Expires=1775007443&Signature=1mHAdzx6aV5VzjqSKRa5AeopzdzGJOk5unLBsf009bL2rGDre3K45Vyif1OnES0hE4cBS2Jm4gsqTEQtfzocOmjqwMN%2FF%2FdLymI9ev2b4dRZtIgVTEzqOSaswlOpoiUkOn%2FvZskk6LshkkuDvAP%2ByAslSBWOMK4ks7IlgqHXGTLIi00FLg0c2%2F%2FDXGcgYKwzzv%2FOh3YAnx%2Bo32XID9N5cxPfira6SdxwVEZTl8%2BwT4P4UuqiHQNk736lNXvD20MrQeKnNGHAsvuHrQjB9qm7vYYD7bqPQmnDb5rdU2SGcTtEYDT5VuekF5rTIAy9BA9%2B%2BrLYyouNCZBsyPXar9pUJQ%3D%3D
+[2026-04-01T01:07:23.496Z] >>> [apiv2][body] PUT https://storage.googleapis.com/gcf-v2-uploads-737884329068.asia-northeast1.cloudfunctions.appspot.com/8715fe94-7e1e-431e-88f2-ff1a88abc559.zip [stream]
+[2026-04-01T01:07:23.728Z] <<< [apiv2][status] PUT https://storage.googleapis.com/gcf-v2-uploads-737884329068.asia-northeast1.cloudfunctions.appspot.com/8715fe94-7e1e-431e-88f2-ff1a88abc559.zip 200
+[2026-04-01T01:07:23.729Z] <<< [apiv2][body] PUT https://storage.googleapis.com/gcf-v2-uploads-737884329068.asia-northeast1.cloudfunctions.appspot.com/8715fe94-7e1e-431e-88f2-ff1a88abc559.zip [omitted]
++  functions: functions source uploaded successfully 
+i  functions: creating Node.js 20 (2nd Gen) function onEventCreated(asia-northeast1)... 
+i  functions: creating Node.js 20 (2nd Gen) function onEventDeleted(asia-northeast1)... 
+i  functions: creating Node.js 20 (2nd Gen) function onEventUpdated(asia-northeast1)... 
+[2026-04-01T01:07:23.734Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:23.734Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:23.735Z] >>> [apiv2][query] POST https://cloudfunctions.googleapis.com/v2/projects/hansong2ne-calendar/locations/asia-northeast1/functions functionId=onEventCreated
+[2026-04-01T01:07:23.735Z] >>> [apiv2][body] POST https://cloudfunctions.googleapis.com/v2/projects/hansong2ne-calendar/locations/asia-northeast1/functions {"name":"projects/hansong2ne-calendar/locations/asia-northeast1/functions/onEventCreated","buildConfig":{"runtime":"nodejs20","entryPoint":"onEventCreated","source":{"storageSource":{"bucket":"gcf-v2-uploads-737884329068.asia-northeast1.cloudfunctions.appspot.com","object":"8715fe94-7e1e-431e-88f2-ff1a88abc559.zip"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""}},"serviceConfig":{"environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"hansong2ne-calendar\",\"databaseURL\":\"https://hansong2ne-calendar-default-rtdb.firebaseio.com\",\"storageBucket\":\"hansong2ne-calendar.firebasestorage.app\"}","GCLOUD_PROJECT":"hansong2ne-calendar","EVENTARC_CLOUD_EVENT_SOURCE":"projects/hansong2ne-calendar/locations/asia-northeast1/services/onEventCreated","FUNCTION_SIGNATURE_TYPE":"cloudevent","FUNCTION_TARGET":"onEventCreated","LOG_EXECUTION_ID":"true"},"ingressSettings":null,"timeoutSeconds":null,"serviceAccountEmail":null,"availableMemory":"256Mi","minInstanceCount":null,"maxInstanceCount":null,"maxInstanceRequestConcurrency":80,"availableCpu":"1","vpcConnector":null,"vpcConnectorEgressSettings":null,"directVpcNetworkInterface":null,"directVpcEgress":null},"labels":{"deployment-tool":"cli-firebase","firebase-functions-hash":"3c16fc3a03f2bb76c83de48c12ffdb5329156142"},"eventTrigger":{"eventType":"google.firebase.database.ref.v1.created","retryPolicy":"RETRY_POLICY_DO_NOT_RETRY","eventFilters":[{"attribute":"ref","value":"events/{eventId}","operator":"match-path-pattern"},{"attribute":"instance","value":"*","operator":"match-path-pattern"}],"triggerRegion":"asia-northeast1"}}
+[2026-04-01T01:07:25.268Z] <<< [apiv2][status] POST https://cloudfunctions.googleapis.com/v2/projects/hansong2ne-calendar/locations/asia-northeast1/functions 400
+[2026-04-01T01:07:25.268Z] <<< [apiv2][body] POST https://cloudfunctions.googleapis.com/v2/projects/hansong2ne-calendar/locations/asia-northeast1/functions {"error":{"code":400,"message":"Validation failed for trigger projects/hansong2ne-calendar/locations/asia-northeast1/triggers/oneventcreated-914255: The request was invalid: generic::invalid_argument: cannot create a trigger in region asia-northeast1 (not yet revealed)","status":"INVALID_ARGUMENT"}}
+!  functions: Request to https://cloudfunctions.googleapis.com/v2/projects/hansong2ne-calendar/locations/asia-northeast1/functions?functionId=onEventCreated had HTTP Error: 400, Validation failed for trigger projects/hansong2ne-calendar/locations/asia-northeast1/triggers/oneventcreated-914255: The request was invalid: generic::invalid_argument: cannot create a trigger in region asia-northeast1 (not yet revealed) 
+!  functions:  failed to create function projects/hansong2ne-calendar/locations/asia-northeast1/functions/onEventCreated 
+Failed to create function projects/hansong2ne-calendar/locations/asia-northeast1/functions/onEventCreated
+[2026-04-01T01:07:25.270Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:25.270Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:25.270Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:25.270Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:25.270Z] >>> [apiv2][query] POST https://cloudfunctions.googleapis.com/v2/projects/hansong2ne-calendar/locations/asia-northeast1/functions functionId=onEventDeleted
+[2026-04-01T01:07:25.271Z] >>> [apiv2][body] POST https://cloudfunctions.googleapis.com/v2/projects/hansong2ne-calendar/locations/asia-northeast1/functions {"name":"projects/hansong2ne-calendar/locations/asia-northeast1/functions/onEventDeleted","buildConfig":{"runtime":"nodejs20","entryPoint":"onEventDeleted","source":{"storageSource":{"bucket":"gcf-v2-uploads-737884329068.asia-northeast1.cloudfunctions.appspot.com","object":"8715fe94-7e1e-431e-88f2-ff1a88abc559.zip"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""}},"serviceConfig":{"environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"hansong2ne-calendar\",\"databaseURL\":\"https://hansong2ne-calendar-default-rtdb.firebaseio.com\",\"storageBucket\":\"hansong2ne-calendar.firebasestorage.app\"}","GCLOUD_PROJECT":"hansong2ne-calendar","EVENTARC_CLOUD_EVENT_SOURCE":"projects/hansong2ne-calendar/locations/asia-northeast1/services/onEventDeleted","FUNCTION_SIGNATURE_TYPE":"cloudevent","FUNCTION_TARGET":"onEventDeleted","LOG_EXECUTION_ID":"true"},"ingressSettings":null,"timeoutSeconds":null,"serviceAccountEmail":null,"availableMemory":"256Mi","minInstanceCount":null,"maxInstanceCount":null,"maxInstanceRequestConcurrency":80,"availableCpu":"1","vpcConnector":null,"vpcConnectorEgressSettings":null,"directVpcNetworkInterface":null,"directVpcEgress":null},"labels":{"deployment-tool":"cli-firebase","firebase-functions-hash":"3c16fc3a03f2bb76c83de48c12ffdb5329156142"},"eventTrigger":{"eventType":"google.firebase.database.ref.v1.deleted","retryPolicy":"RETRY_POLICY_DO_NOT_RETRY","eventFilters":[{"attribute":"ref","value":"events/{eventId}","operator":"match-path-pattern"},{"attribute":"instance","value":"*","operator":"match-path-pattern"}],"triggerRegion":"asia-northeast1"}}
+[2026-04-01T01:07:25.271Z] >>> [apiv2][query] POST https://cloudfunctions.googleapis.com/v2/projects/hansong2ne-calendar/locations/asia-northeast1/functions functionId=onEventUpdated
+[2026-04-01T01:07:25.271Z] >>> [apiv2][body] POST https://cloudfunctions.googleapis.com/v2/projects/hansong2ne-calendar/locations/asia-northeast1/functions {"name":"projects/hansong2ne-calendar/locations/asia-northeast1/functions/onEventUpdated","buildConfig":{"runtime":"nodejs20","entryPoint":"onEventUpdated","source":{"storageSource":{"bucket":"gcf-v2-uploads-737884329068.asia-northeast1.cloudfunctions.appspot.com","object":"8715fe94-7e1e-431e-88f2-ff1a88abc559.zip"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""}},"serviceConfig":{"environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"hansong2ne-calendar\",\"databaseURL\":\"https://hansong2ne-calendar-default-rtdb.firebaseio.com\",\"storageBucket\":\"hansong2ne-calendar.firebasestorage.app\"}","GCLOUD_PROJECT":"hansong2ne-calendar","EVENTARC_CLOUD_EVENT_SOURCE":"projects/hansong2ne-calendar/locations/asia-northeast1/services/onEventUpdated","FUNCTION_SIGNATURE_TYPE":"cloudevent","FUNCTION_TARGET":"onEventUpdated","LOG_EXECUTION_ID":"true"},"ingressSettings":null,"timeoutSeconds":null,"serviceAccountEmail":null,"availableMemory":"256Mi","minInstanceCount":null,"maxInstanceCount":null,"maxInstanceRequestConcurrency":80,"availableCpu":"1","vpcConnector":null,"vpcConnectorEgressSettings":null,"directVpcNetworkInterface":null,"directVpcEgress":null},"labels":{"deployment-tool":"cli-firebase","firebase-functions-hash":"3c16fc3a03f2bb76c83de48c12ffdb5329156142"},"eventTrigger":{"eventType":"google.firebase.database.ref.v1.updated","retryPolicy":"RETRY_POLICY_DO_NOT_RETRY","eventFilters":[{"attribute":"ref","value":"events/{eventId}","operator":"match-path-pattern"},{"attribute":"instance","value":"*","operator":"match-path-pattern"}],"triggerRegion":"asia-northeast1"}}
+[2026-04-01T01:07:26.576Z] <<< [apiv2][status] POST https://cloudfunctions.googleapis.com/v2/projects/hansong2ne-calendar/locations/asia-northeast1/functions 400
+[2026-04-01T01:07:26.576Z] <<< [apiv2][body] POST https://cloudfunctions.googleapis.com/v2/projects/hansong2ne-calendar/locations/asia-northeast1/functions {"error":{"code":400,"message":"Validation failed for trigger projects/hansong2ne-calendar/locations/asia-northeast1/triggers/oneventdeleted-329292: The request was invalid: generic::invalid_argument: cannot create a trigger in region asia-northeast1 (not yet revealed)","status":"INVALID_ARGUMENT"}}
+!  functions: Request to https://cloudfunctions.googleapis.com/v2/projects/hansong2ne-calendar/locations/asia-northeast1/functions?functionId=onEventDeleted had HTTP Error: 400, Validation failed for trigger projects/hansong2ne-calendar/locations/asia-northeast1/triggers/oneventdeleted-329292: The request was invalid: generic::invalid_argument: cannot create a trigger in region asia-northeast1 (not yet revealed) 
+!  functions:  failed to create function projects/hansong2ne-calendar/locations/asia-northeast1/functions/onEventDeleted 
+Failed to create function projects/hansong2ne-calendar/locations/asia-northeast1/functions/onEventDeleted
+[2026-04-01T01:07:26.777Z] <<< [apiv2][status] POST https://cloudfunctions.googleapis.com/v2/projects/hansong2ne-calendar/locations/asia-northeast1/functions 400
+[2026-04-01T01:07:26.777Z] <<< [apiv2][body] POST https://cloudfunctions.googleapis.com/v2/projects/hansong2ne-calendar/locations/asia-northeast1/functions {"error":{"code":400,"message":"Validation failed for trigger projects/hansong2ne-calendar/locations/asia-northeast1/triggers/oneventupdated-781340: The request was invalid: generic::invalid_argument: cannot create a trigger in region asia-northeast1 (not yet revealed)","status":"INVALID_ARGUMENT"}}
+!  functions: Request to https://cloudfunctions.googleapis.com/v2/projects/hansong2ne-calendar/locations/asia-northeast1/functions?functionId=onEventUpdated had HTTP Error: 400, Validation failed for trigger projects/hansong2ne-calendar/locations/asia-northeast1/triggers/oneventupdated-781340: The request was invalid: generic::invalid_argument: cannot create a trigger in region asia-northeast1 (not yet revealed) 
+!  functions:  failed to create function projects/hansong2ne-calendar/locations/asia-northeast1/functions/onEventUpdated 
+Failed to create function projects/hansong2ne-calendar/locations/asia-northeast1/functions/onEventUpdated
+[2026-04-01T01:07:26.786Z] Total Function Deployment time: 3046
+[2026-04-01T01:07:26.786Z] 3 Functions Deployed
+[2026-04-01T01:07:26.786Z] 3 Functions Errored
+[2026-04-01T01:07:26.786Z] 0 Function Deployments Aborted
+[2026-04-01T01:07:26.786Z] Average Function Deployment time: 2475.3333333333335
+
+Functions deploy had errors with the following functions:
+	onEventCreated(asia-northeast1)
+	onEventDeleted(asia-northeast1)
+	onEventUpdated(asia-northeast1)
+[2026-04-01T01:07:27.124Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:27.124Z] Checked if tokens are valid: true, expires at: 1775008121931
+[2026-04-01T01:07:27.124Z] >>> [apiv2][query] GET https://artifactregistry.googleapis.com/v1/projects/hansong2ne-calendar/locations/asia-northeast1/repositories/gcf-artifacts [none]
+[2026-04-01T01:07:27.574Z] <<< [apiv2][status] GET https://artifactregistry.googleapis.com/v1/projects/hansong2ne-calendar/locations/asia-northeast1/repositories/gcf-artifacts 404
+[2026-04-01T01:07:27.575Z] <<< [apiv2][body] GET https://artifactregistry.googleapis.com/v1/projects/hansong2ne-calendar/locations/asia-northeast1/repositories/gcf-artifacts {"error":{"code":404,"message":"Requested entity was not found.","status":"NOT_FOUND"}}
+[2026-04-01T01:07:27.575Z] Failed to check artifact cleanup policy for region asia-northeast1: Request to https://artifactregistry.googleapis.com/v1/projects/hansong2ne-calendar/locations/asia-northeast1/repositories/gcf-artifacts had HTTP Error: 404, Requested entity was not found. {"name":"FirebaseError","children":[],"context":{"body":{"error":{"code":404,"message":"Requested entity was not found.","status":"NOT_FOUND"}},"response":{"statusCode":404}},"exit":1,"message":"Request to https://artifactregistry.googleapis.com/v1/projects/hansong2ne-calendar/locations/asia-northeast1/repositories/gcf-artifacts had HTTP Error: 404, Requested entity was not found.","status":404}
+[2026-04-01T01:07:27.576Z] Functions deploy failed.
+[2026-04-01T01:07:27.576Z] {
+  "endpoint": {
+    "id": "onEventCreated",
+    "project": "hansong2ne-calendar",
+    "region": "asia-northeast1",
+    "entryPoint": "onEventCreated",
+    "platform": "gcfv2",
+    "runtime": "nodejs20",
+    "eventTrigger": {
+      "eventType": "google.firebase.database.ref.v1.created",
+      "retry": false,
+      "eventFilters": {},
+      "eventFilterPathPatterns": {
+        "ref": "events/{eventId}",
+        "instance": "*"
+      },
+      "region": "asia-northeast1"
+    },
+    "labels": {
+      "deployment-tool": "cli-firebase"
+    },
+    "serviceAccount": null,
+    "ingressSettings": null,
+    "availableMemoryMb": null,
+    "timeoutSeconds": null,
+    "maxInstances": null,
+    "minInstances": null,
+    "concurrency": 80,
+    "vpc": null,
+    "environmentVariables": {
+      "FIREBASE_CONFIG": "{\"projectId\":\"hansong2ne-calendar\",\"databaseURL\":\"https://hansong2ne-calendar-default-rtdb.firebaseio.com\",\"storageBucket\":\"hansong2ne-calendar.firebasestorage.app\"}",
+      "GCLOUD_PROJECT": "hansong2ne-calendar",
+      "EVENTARC_CLOUD_EVENT_SOURCE": "projects/hansong2ne-calendar/locations/asia-northeast1/services/onEventCreated"
+    },
+    "codebase": "default",
+    "cpu": 1,
+    "targetedByOnly": false,
+    "hash": "3c16fc3a03f2bb76c83de48c12ffdb5329156142"
+  },
+  "op": "create",
+  "original": {
+    "name": "FirebaseError",
+    "children": [],
+    "context": {
+      "function": "projects/hansong2ne-calendar/locations/asia-northeast1/functions/onEventCreated"
+    },
+    "exit": 1,
+    "message": "Failed to create function projects/hansong2ne-calendar/locations/asia-northeast1/functions/onEventCreated",
+    "original": {
+      "name": "FirebaseError",
+      "children": [],
+      "context": {
+        "body": {
+          "error": {
+            "code": 400,
+            "message": "Validation failed for trigger projects/hansong2ne-calendar/locations/asia-northeast1/triggers/oneventcreated-914255: The request was invalid: generic::invalid_argument: cannot create a trigger in region asia-northeast1 (not yet revealed)",
+            "status": "INVALID_ARGUMENT"
+          }
+        },
+        "response": {
+          "statusCode": 400
+        }
+      },
+      "exit": 1,
+      "message": "Request to https://cloudfunctions.googleapis.com/v2/projects/hansong2ne-calendar/locations/asia-northeast1/functions?functionId=onEventCreated had HTTP Error: 400, Validation failed for trigger projects/hansong2ne-calendar/locations/asia-northeast1/triggers/oneventcreated-914255: The request was invalid: generic::invalid_argument: cannot create a trigger in region asia-northeast1 (not yet revealed)",
+      "status": 400
+    },
+    "status": 400,
+    "code": 400
+  }
+}
+[2026-04-01T01:07:27.576Z] {
+  "endpoint": {
+    "id": "onEventDeleted",
+    "project": "hansong2ne-calendar",
+    "region": "asia-northeast1",
+    "entryPoint": "onEventDeleted",
+    "platform": "gcfv2",
+    "runtime": "nodejs20",
+    "eventTrigger": {
+      "eventType": "google.firebase.database.ref.v1.deleted",
+      "retry": false,
+      "eventFilters": {},
+      "eventFilterPathPatterns": {
+        "ref": "events/{eventId}",
+        "instance": "*"
+      },
+      "region": "asia-northeast1"
+    },
+    "labels": {
+      "deployment-tool": "cli-firebase"
+    },
+    "serviceAccount": null,
+    "ingressSettings": null,
+    "availableMemoryMb": null,
+    "timeoutSeconds": null,
+    "maxInstances": null,
+    "minInstances": null,
+    "concurrency": 80,
+    "vpc": null,
+    "environmentVariables": {
+      "FIREBASE_CONFIG": "{\"projectId\":\"hansong2ne-calendar\",\"databaseURL\":\"https://hansong2ne-calendar-default-rtdb.firebaseio.com\",\"storageBucket\":\"hansong2ne-calendar.firebasestorage.app\"}",
+      "GCLOUD_PROJECT": "hansong2ne-calendar",
+      "EVENTARC_CLOUD_EVENT_SOURCE": "projects/hansong2ne-calendar/locations/asia-northeast1/services/onEventDeleted"
+    },
+    "codebase": "default",
+    "cpu": 1,
+    "targetedByOnly": false,
+    "hash": "3c16fc3a03f2bb76c83de48c12ffdb5329156142"
+  },
+  "op": "create",
+  "original": {
+    "name": "FirebaseError",
+    "children": [],
+    "context": {
+      "function": "projects/hansong2ne-calendar/locations/asia-northeast1/functions/onEventDeleted"
+    },
+    "exit": 1,
+    "message": "Failed to create function projects/hansong2ne-calendar/locations/asia-northeast1/functions/onEventDeleted",
+    "original": {
+      "name": "FirebaseError",
+      "children": [],
+      "context": {
+        "body": {
+          "error": {
+            "code": 400,
+            "message": "Validation failed for trigger projects/hansong2ne-calendar/locations/asia-northeast1/triggers/oneventdeleted-329292: The request was invalid: generic::invalid_argument: cannot create a trigger in region asia-northeast1 (not yet revealed)",
+            "status": "INVALID_ARGUMENT"
+          }
+        },
+        "response": {
+          "statusCode": 400
+        }
+      },
+      "exit": 1,
+      "message": "Request to https://cloudfunctions.googleapis.com/v2/projects/hansong2ne-calendar/locations/asia-northeast1/functions?functionId=onEventDeleted had HTTP Error: 400, Validation failed for trigger projects/hansong2ne-calendar/locations/asia-northeast1/triggers/oneventdeleted-329292: The request was invalid: generic::invalid_argument: cannot create a trigger in region asia-northeast1 (not yet revealed)",
+      "status": 400
+    },
+    "status": 400,
+    "code": 400
+  }
+}
+[2026-04-01T01:07:27.576Z] {
+  "endpoint": {
+    "id": "onEventUpdated",
+    "project": "hansong2ne-calendar",
+    "region": "asia-northeast1",
+    "entryPoint": "onEventUpdated",
+    "platform": "gcfv2",
+    "runtime": "nodejs20",
+    "eventTrigger": {
+      "eventType": "google.firebase.database.ref.v1.updated",
+      "retry": false,
+      "eventFilters": {},
+      "eventFilterPathPatterns": {
+        "ref": "events/{eventId}",
+        "instance": "*"
+      },
+      "region": "asia-northeast1"
+    },
+    "labels": {
+      "deployment-tool": "cli-firebase"
+    },
+    "serviceAccount": null,
+    "ingressSettings": null,
+    "availableMemoryMb": null,
+    "timeoutSeconds": null,
+    "maxInstances": null,
+    "minInstances": null,
+    "concurrency": 80,
+    "vpc": null,
+    "environmentVariables": {
+      "FIREBASE_CONFIG": "{\"projectId\":\"hansong2ne-calendar\",\"databaseURL\":\"https://hansong2ne-calendar-default-rtdb.firebaseio.com\",\"storageBucket\":\"hansong2ne-calendar.firebasestorage.app\"}",
+      "GCLOUD_PROJECT": "hansong2ne-calendar",
+      "EVENTARC_CLOUD_EVENT_SOURCE": "projects/hansong2ne-calendar/locations/asia-northeast1/services/onEventUpdated"
+    },
+    "codebase": "default",
+    "cpu": 1,
+    "targetedByOnly": false,
+    "hash": "3c16fc3a03f2bb76c83de48c12ffdb5329156142"
+  },
+  "op": "create",
+  "original": {
+    "name": "FirebaseError",
+    "children": [],
+    "context": {
+      "function": "projects/hansong2ne-calendar/locations/asia-northeast1/functions/onEventUpdated"
+    },
+    "exit": 1,
+    "message": "Failed to create function projects/hansong2ne-calendar/locations/asia-northeast1/functions/onEventUpdated",
+    "original": {
+      "name": "FirebaseError",
+      "children": [],
+      "context": {
+        "body": {
+          "error": {
+            "code": 400,
+            "message": "Validation failed for trigger projects/hansong2ne-calendar/locations/asia-northeast1/triggers/oneventupdated-781340: The request was invalid: generic::invalid_argument: cannot create a trigger in region asia-northeast1 (not yet revealed)",
+            "status": "INVALID_ARGUMENT"
+          }
+        },
+        "response": {
+          "statusCode": 400
+        }
+      },
+      "exit": 1,
+      "message": "Request to https://cloudfunctions.googleapis.com/v2/projects/hansong2ne-calendar/locations/asia-northeast1/functions?functionId=onEventUpdated had HTTP Error: 400, Validation failed for trigger projects/hansong2ne-calendar/locations/asia-northeast1/triggers/oneventupdated-781340: The request was invalid: generic::invalid_argument: cannot create a trigger in region asia-northeast1 (not yet revealed)",
+      "status": 400
+    },
+    "status": 400,
+    "code": 400
+  }
+}
+Error: There was an error deploying functions:
+- Error Failed to create function onEventCreated in region asia-northeast1
+- Error Failed to create function onEventDeleted in region asia-northeast1
+- Error Failed to create function onEventUpdated in region asia-northeast1
