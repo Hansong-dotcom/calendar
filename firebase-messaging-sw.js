@@ -18,7 +18,7 @@ messaging.onBackgroundMessage(payload => {
   const { title, body } = payload.notification;
   self.registration.showNotification(title, {
     body,
-    icon: "/icon-192.png",
-    badge: "/icon-192.png",
+    icon: "/calendar/icon-192.png",
+    badge: "/calendar/icon-192.png",
   });
 });
