@@ -1,0 +1,26 @@
+{
+  "name": "우리 가족 캘린더",
+  "short_name": "가족 캘린더",
+  "description": "우리 가족만의 공유 캘린더",
+  "start_url": "/calendar/",
+  "scope": "/calendar/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F5F4F0",
+  "theme_color": "#22C197",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "/calendar/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/calendar/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
