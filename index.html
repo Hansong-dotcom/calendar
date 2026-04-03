@@ -117,6 +117,11 @@
   .day-pills{display:flex;flex-direction:column;gap:2px;overflow:hidden;}
   .epill{font-size:10px;padding:2px 5px;border-radius:4px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-weight:500;line-height:1.4;max-width:100%;display:block;}
   .more-label{font-size:10px;color:var(--text-muted);padding:0 4px;}
+  .holiday-name{font-size:9px;color:#E24B4A;font-weight:500;line-height:1.2;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:100%;}
+  .anniversary-name{font-size:9px;color:#E05C8A;font-weight:500;line-height:1.2;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:100%;}
+  .solar-name{font-size:9px;color:#aaa;font-weight:400;line-height:1.2;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:100%;}
+  .day.holiday .dnum{color:#E24B4A !important;}
+  .day.holiday.today .dnum{background:#E24B4A !important;color:white !important;}
 
   /* DETAIL PANEL */
   .detail-panel{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-top:16px;display:none;animation:slideIn .2s ease;}
@@ -614,7 +619,7 @@ function setupApp() {
     allEvents = snap.val() || {};
     document.getElementById('sync-dot').classList.add('connected');
     document.getElementById('sync-label').textContent = '실시간 연결됨';
-    renderAll();
+    loadHolidaysFromApi(curY).then(() => renderAll());
   }, () => {
     document.getElementById('sync-label').textContent = '연결 실패';
     toast('Firebase 연결에 실패했어요');
@@ -654,9 +659,9 @@ function setupApp() {
   };
 
   // 캘린더 네비
-  document.getElementById('prev').onclick   = () => { curM--; if(curM<0){curM=11;curY--;} renderCalendar(); renderLegend(); };
-  document.getElementById('next').onclick   = () => { curM++; if(curM>11){curM=0;curY++;} renderCalendar(); renderLegend(); };
-  document.getElementById('go-today').onclick = () => { curY=today.getFullYear(); curM=today.getMonth(); renderCalendar(); renderLegend(); };
+  document.getElementById('prev').onclick   = () => { curM--; if(curM<0){curM=11;curY--;} loadHolidaysFromApi(curY).then(()=>{ renderCalendar(); renderLegend(); }); };
+  document.getElementById('next').onclick   = () => { curM++; if(curM>11){curM=0;curY++;} loadHolidaysFromApi(curY).then(()=>{ renderCalendar(); renderLegend(); }); };
+  document.getElementById('go-today').onclick = () => { curY=today.getFullYear(); curM=today.getMonth(); loadHolidaysFromApi(curY).then(()=>{ renderCalendar(); renderLegend(); }); };
 }
 
 /* ══ PIN 변경 ══ */
@@ -986,6 +991,199 @@ function renderMemberFilter() {
   });
 }
 
+/* ════════════════════════════════════════
+   공휴일 · 기념일 · 절기 데이터
+════════════════════════════════════════ */
+const HOLIDAYS = {
+  // ── 양력 고정 공휴일 ──
+  '01-01': { name:'신정', type:'holiday' },
+  '03-01': { name:'삼일절', type:'holiday' },
+  '05-01': { name:'근로자의날', type:'holiday' },
+  '06-06': { name:'현충일', type:'holiday' },
+  '08-15': { name:'광복절', type:'holiday' },
+  '10-03': { name:'개천절', type:'holiday' },
+  '10-09': { name:'한글날', type:'holiday' },
+  '12-25': { name:'크리스마스', type:'holiday' },
+  // ── 기념일 ──
+  '05-05': { name:'어린이날', type:'holiday' },
+  '05-08': { name:'어버이날', type:'anniversary' },
+  '05-15': { name:'스승의날', type:'anniversary' },
+  '06-01': { name:'의병의날', type:'anniversary' },
+  '11-11': { name:'빼빼로데이', type:'anniversary' },
+  '12-31': { name:'연말', type:'anniversary' },
+};
+
+// 음력 기반 공휴일 — API 캐시 (런타임에 채워짐) + fallback
+const LUNAR_HOLIDAYS_FALLBACK = {
+  // ── 2024 ──
+  '2024-02-09': { name:'설날연휴', type:'holiday' },
+  '2024-02-10': { name:'설날', type:'holiday' },
+  '2024-02-11': { name:'설날연휴', type:'holiday' },
+  '2024-02-12': { name:'대체공휴일(설날)', type:'holiday' },
+  '2024-05-06': { name:'대체공휴일(어린이날)', type:'holiday' },  // 어린이날 일요일
+  '2024-05-15': { name:'부처님오신날', type:'holiday' },
+  '2024-09-16': { name:'추석연휴', type:'holiday' },
+  '2024-09-17': { name:'추석', type:'holiday' },
+  '2024-09-18': { name:'추석연휴', type:'holiday' },
+  // ── 2025 ──
+  '2025-01-27': { name:'임시공휴일(설날)', type:'holiday' },
+  '2025-01-28': { name:'설날연휴', type:'holiday' },
+  '2025-01-29': { name:'설날', type:'holiday' },
+  '2025-01-30': { name:'설날연휴', type:'holiday' },
+  '2025-03-03': { name:'대체공휴일(삼일절)', type:'holiday' },   // 삼일절 토요일
+  '2025-05-05': { name:'어린이날·부처님오신날', type:'holiday' },
+  '2025-05-06': { name:'대체공휴일(부처님오신날)', type:'holiday' },
+  '2025-10-05': { name:'추석연휴', type:'holiday' },
+  '2025-10-06': { name:'추석', type:'holiday' },
+  '2025-10-07': { name:'추석연휴', type:'holiday' },
+  '2025-10-08': { name:'대체공휴일(추석)', type:'holiday' },
+  // ── 2026 ──
+  '2026-02-16': { name:'설날연휴', type:'holiday' },
+  '2026-02-17': { name:'설날', type:'holiday' },
+  '2026-02-18': { name:'설날연휴', type:'holiday' },
+  '2026-03-02': { name:'대체공휴일(삼일절)', type:'holiday' },   // 삼일절 일요일
+  '2026-05-24': { name:'부처님오신날', type:'holiday' },
+  '2026-05-25': { name:'대체공휴일(부처님오신날)', type:'holiday' },
+  '2026-08-17': { name:'대체공휴일(광복절)', type:'holiday' },   // 광복절 토요일
+  '2026-09-24': { name:'추석연휴', type:'holiday' },
+  '2026-09-25': { name:'추석', type:'holiday' },
+  '2026-09-26': { name:'추석연휴', type:'holiday' },
+  '2026-10-05': { name:'대체공휴일(개천절)', type:'holiday' },   // 개천절 토요일
+  // ── 2027 ──
+  '2027-02-06': { name:'설날연휴', type:'holiday' },
+  '2027-02-07': { name:'설날', type:'holiday' },
+  '2027-02-08': { name:'설날연휴', type:'holiday' },
+  '2027-02-09': { name:'대체공휴일(설날)', type:'holiday' },
+  '2027-05-13': { name:'부처님오신날', type:'holiday' },
+  '2027-08-16': { name:'대체공휴일(광복절)', type:'holiday' },   // 광복절 일요일
+  '2027-09-14': { name:'추석연휴', type:'holiday' },
+  '2027-09-15': { name:'추석', type:'holiday' },
+  '2027-09-16': { name:'추석연휴', type:'holiday' },
+  '2027-10-04': { name:'대체공휴일(개천절)', type:'holiday' },   // 개천절 일요일
+  '2027-10-11': { name:'대체공휴일(한글날)', type:'holiday' },   // 한글날 토요일
+  '2027-12-27': { name:'대체공휴일(크리스마스)', type:'holiday' }, // 크리스마스 토요일
+  // ── 2028 ──
+  '2028-01-26': { name:'설날연휴', type:'holiday' },
+  '2028-01-27': { name:'설날', type:'holiday' },
+  '2028-01-28': { name:'설날연휴', type:'holiday' },
+  '2028-05-02': { name:'부처님오신날', type:'holiday' },
+  '2028-10-02': { name:'추석연휴', type:'holiday' },
+  '2028-10-03': { name:'추석·개천절', type:'holiday' },
+  '2028-10-04': { name:'추석연휴', type:'holiday' },
+  '2028-10-05': { name:'대체공휴일(개천절)', type:'holiday' },
+  // ── 2029 ──
+  '2029-02-12': { name:'설날연휴', type:'holiday' },
+  '2029-02-13': { name:'설날', type:'holiday' },
+  '2029-02-14': { name:'설날연휴', type:'holiday' },
+  '2029-05-20': { name:'부처님오신날', type:'holiday' },
+  '2029-09-21': { name:'추석연휴', type:'holiday' },
+  '2029-09-22': { name:'추석', type:'holiday' },
+  '2029-09-23': { name:'추석연휴', type:'holiday' },
+  // ── 2030 ──
+  '2030-02-02': { name:'설날연휴', type:'holiday' },
+  '2030-02-03': { name:'설날', type:'holiday' },
+  '2030-02-04': { name:'설날연휴', type:'holiday' },
+  '2030-05-09': { name:'부처님오신날', type:'holiday' },
+  '2030-09-11': { name:'추석연휴', type:'holiday' },
+  '2030-09-12': { name:'추석', type:'holiday' },
+  '2030-09-13': { name:'추석연휴', type:'holiday' },
+};
+
+// API로 받아온 공휴일 캐시 (년도별)
+const holidayApiCache = {}; // { '2026': { '2026-05-25': {name,type}, ... } }
+const FUNCTIONS_URL = 'https://us-central1-hansong2ne-calendar.cloudfunctions.net/getHolidays';
+
+/* 공공데이터포털 API로 해당 연도 공휴일 로드 */
+async function loadHolidaysFromApi(year) {
+  const key = String(year);
+  if (holidayApiCache[key]) return; // 이미 로드됨
+  try {
+    const res = await fetch(`${FUNCTIONS_URL}?year=${year}`);
+    const data = await res.json();
+    if (!data.holidays) return;
+    holidayApiCache[key] = {};
+    data.holidays.forEach(h => {
+      // locdate: YYYYMMDD → YYYY-MM-DD
+      const ds = `${h.date.slice(0,4)}-${h.date.slice(4,6)}-${h.date.slice(6,8)}`;
+      holidayApiCache[key][ds] = {
+        name: h.name,
+        type: h.isHoliday ? 'holiday' : 'anniversary'
+      };
+    });
+    console.log(`${year}년 공휴일 API 로드 완료:`, Object.keys(holidayApiCache[key]).length, '건');
+  } catch(e) {
+    console.log(`${year}년 공휴일 API 실패, fallback 사용:`, e.message);
+  }
+}
+
+// 24절기 (천문 계산 기반, 2024~2030)
+const SOLAR_TERMS = {
+  '2024-02-04':'입춘','2024-02-19':'우수','2024-03-05':'경칩','2024-03-20':'춘분',
+  '2024-04-04':'청명','2024-04-19':'곡우','2024-05-05':'입하','2024-05-20':'소만',
+  '2024-06-05':'망종','2024-06-21':'하지','2024-07-06':'소서','2024-07-22':'대서',
+  '2024-08-07':'입추','2024-08-22':'처서','2024-09-07':'백로','2024-09-22':'추분',
+  '2024-10-08':'한로','2024-10-23':'상강','2024-11-07':'입동','2024-11-22':'소설',
+  '2024-12-07':'대설','2024-12-21':'동지',
+  '2025-01-05':'소한','2025-01-20':'대한',
+  '2025-02-03':'입춘','2025-02-18':'우수','2025-03-05':'경칩','2025-03-20':'춘분',
+  '2025-04-04':'청명','2025-04-20':'곡우','2025-05-05':'입하','2025-05-21':'소만',
+  '2025-06-05':'망종','2025-06-21':'하지','2025-07-07':'소서','2025-07-22':'대서',
+  '2025-08-07':'입추','2025-08-23':'처서','2025-09-07':'백로','2025-09-23':'추분',
+  '2025-10-08':'한로','2025-10-23':'상강','2025-11-07':'입동','2025-11-22':'소설',
+  '2025-12-07':'대설','2025-12-22':'동지',
+  '2026-01-05':'소한','2026-01-20':'대한',
+  '2026-02-04':'입춘','2026-02-18':'우수','2026-03-06':'경칩','2026-03-20':'춘분',
+  '2026-04-05':'청명','2026-04-20':'곡우','2026-05-05':'입하','2026-05-21':'소만',
+  '2026-06-06':'망종','2026-06-21':'하지','2026-07-07':'소서','2026-07-23':'대서',
+  '2026-08-07':'입추','2026-08-23':'처서','2026-09-08':'백로','2026-09-23':'추분',
+  '2026-10-08':'한로','2026-10-23':'상강','2026-11-07':'입동','2026-11-22':'소설',
+  '2026-12-07':'대설','2026-12-22':'동지',
+  '2027-01-06':'소한','2027-01-20':'대한',
+  '2027-02-04':'입춘','2027-02-18':'우수','2027-03-06':'경칩','2027-03-21':'춘분',
+  '2027-04-05':'청명','2027-04-20':'곡우','2027-05-06':'입하','2027-05-21':'소만',
+  '2027-06-06':'망종','2027-06-21':'하지','2027-07-07':'소서','2027-07-23':'대서',
+  '2027-08-07':'입추','2027-08-23':'처서','2027-09-08':'백로','2027-09-23':'추분',
+  '2027-10-08':'한로','2027-10-23':'상강','2027-11-07':'입동','2027-11-22':'소설',
+  '2027-12-07':'대설','2027-12-22':'동지',
+  '2028-01-06':'소한','2028-01-20':'대한',
+  '2028-02-04':'입춘','2028-02-19':'우수','2028-03-05':'경칩','2028-03-20':'춘분',
+  '2028-04-04':'청명','2028-04-19':'곡우','2028-05-05':'입하','2028-05-20':'소만',
+  '2028-06-05':'망종','2028-06-20':'하지','2028-07-06':'소서','2028-07-22':'대서',
+  '2028-08-07':'입추','2028-08-22':'처서','2028-09-07':'백로','2028-09-22':'추분',
+  '2028-10-07':'한로','2028-10-22':'상강','2028-11-06':'입동','2028-11-21':'소설',
+  '2028-12-06':'대설','2028-12-21':'동지',
+  '2029-01-05':'소한','2029-01-19':'대한',
+  '2029-02-03':'입춘','2029-02-18':'우수','2029-03-05':'경칩','2029-03-20':'춘분',
+  '2029-04-04':'청명','2029-04-19':'곡우','2029-05-05':'입하','2029-05-20':'소만',
+  '2029-06-05':'망종','2029-06-21':'하지','2029-07-06':'소서','2029-07-22':'대서',
+  '2029-08-07':'입추','2029-08-22':'처서','2029-09-07':'백로','2029-09-22':'추분',
+  '2029-10-07':'한로','2029-10-22':'상강','2029-11-06':'입동','2029-11-21':'소설',
+  '2029-12-06':'대설','2029-12-21':'동지',
+  '2030-01-05':'소한','2030-01-20':'대한',
+  '2030-02-04':'입춘','2030-02-18':'우수','2030-03-06':'경칩','2030-03-20':'춘분',
+  '2030-04-05':'청명','2030-04-20':'곡우','2030-05-05':'입하','2030-05-21':'소만',
+  '2030-06-06':'망종','2030-06-21':'하지','2030-07-07':'소서','2030-07-23':'대서',
+  '2030-08-07':'입추','2030-08-23':'처서','2030-09-07':'백로','2030-09-23':'추분',
+  '2030-10-08':'한로','2030-10-23':'상강','2030-11-07':'입동','2030-11-22':'소설',
+  '2030-12-07':'대설','2030-12-22':'동지',
+};
+
+/* 날짜에 해당하는 공휴일/기념일/절기 조회 */
+function getDayInfo(ds) {
+  if (!ds) return null;
+  const year = ds.slice(0, 4);
+  // 1순위: API 캐시
+  if (holidayApiCache[year] && holidayApiCache[year][ds]) return holidayApiCache[year][ds];
+  // 2순위: fallback 하드코딩
+  if (LUNAR_HOLIDAYS_FALLBACK[ds]) return LUNAR_HOLIDAYS_FALLBACK[ds];
+  // 3순위: 양력 고정 공휴일/기념일
+  const md = ds.slice(5);
+  if (HOLIDAYS[md]) return HOLIDAYS[md];
+  // 4순위: 절기
+  if (SOLAR_TERMS[ds]) return { name: SOLAR_TERMS[ds], type: 'solar' };
+  return null;
+}
+
 function renderCalendar() {
   document.getElementById('cal-month').innerHTML = `<span>${curY}년</span> ${MON[curM]}`;
   const grid = document.getElementById('days-grid'); grid.innerHTML = '';
@@ -1000,14 +1198,25 @@ function renderCalendar() {
   cells.forEach((c,i) => {
     const dow = i%7;
     const dayEvts = c.cur ? evts.filter(e=>e.date===c.ds&&filter[e.member]).sort((a,b)=>(a.time||'ZZ:ZZ').localeCompare(b.time||'ZZ:ZZ')) : [];
+    const dayInfo = c.cur ? getDayInfo(c.ds) : null;
+    const isHoliday = dayInfo && dayInfo.type === 'holiday';
     const el = document.createElement('div');
-    el.className = ['day',!c.cur?'other-month':'',c.ds===todayStr?'today':'',c.ds===selDate?'selected':'',dow===0?'sun':dow===6?'sat':''].filter(Boolean).join(' ');
+    el.className = ['day',!c.cur?'other-month':'',c.ds===todayStr?'today':'',c.ds===selDate?'selected':'',dow===0?'sun':dow===6?'sat':'',isHoliday?'holiday':''].filter(Boolean).join(' ');
     const dr=document.createElement('div'); dr.className='dnum-row';
     const dn=document.createElement('span'); dn.className='dnum'; dn.textContent=c.d; dr.appendChild(dn);
     if(dayEvts.length){const ec=document.createElement('span');ec.className='ecount';ec.textContent=dayEvts.length+'건';dr.appendChild(ec);}
     el.appendChild(dr);
     if(c.cur&&c.ds){
       const pills=document.createElement('div'); pills.className='day-pills';
+      // 공휴일/기념일/절기 표시
+      if(dayInfo) {
+        const hl=document.createElement('div');
+        if(dayInfo.type==='solar') hl.className='solar-name';
+        else if(dayInfo.type==='anniversary') hl.className='anniversary-name';
+        else hl.className='holiday-name';
+        hl.textContent = dayInfo.name;
+        pills.appendChild(hl);
+      }
       dayEvts.slice(0,2).forEach(e=>{const m=MEMBERS.find(x=>x.id===e.member);const p=document.createElement('div');p.className='epill';p.style.cssText=`background:${m.light};color:${m.dark};`;p.textContent=(e.time?e.time+' ':'')+e.title;pills.appendChild(p);});
       if(dayEvts.length>2){const mo=document.createElement('div');mo.className='more-label';mo.textContent=`+${dayEvts.length-2}건 더`;pills.appendChild(mo);}
       el.appendChild(pills); el.onclick=()=>openDetail(c.ds);
