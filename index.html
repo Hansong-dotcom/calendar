@@ -588,6 +588,33 @@ async function tryLogin() {
 document.getElementById('pin-back').onclick = buildMemberBtns;
 
 /* ══════════════════════════════
+   공공데이터포털 공휴일 API
+══════════════════════════════ */
+const holidayApiCache = {};
+const FUNCTIONS_URL = 'https://us-central1-hansong2ne-calendar.cloudfunctions.net/getHolidays';
+
+async function loadHolidaysFromApi(year) {
+  const key = String(year);
+  if (holidayApiCache[key]) return;
+  try {
+    const res = await fetch(`${FUNCTIONS_URL}?year=${year}`);
+    const data = await res.json();
+    if (!data.holidays) return;
+    holidayApiCache[key] = {};
+    data.holidays.forEach(h => {
+      const ds = `${h.date.slice(0,4)}-${h.date.slice(4,6)}-${h.date.slice(6,8)}`;
+      holidayApiCache[key][ds] = {
+        name: h.name,
+        type: h.isHoliday ? 'holiday' : 'anniversary'
+      };
+    });
+    console.log(`${year}년 공휴일 API 로드 완료:`, Object.keys(holidayApiCache[key]).length, '건');
+  } catch(e) {
+    console.log(`${year}년 공휴일 API 실패, fallback 사용:`, e.message);
+  }
+}
+
+/* ══════════════════════════════
    앱 초기화
 ══════════════════════════════ */
 function setupApp() {
@@ -1090,31 +1117,7 @@ const LUNAR_HOLIDAYS_FALLBACK = {
 };
 
 // API로 받아온 공휴일 캐시 (년도별)
-const holidayApiCache = {}; // { '2026': { '2026-05-25': {name,type}, ... } }
-const FUNCTIONS_URL = 'https://us-central1-hansong2ne-calendar.cloudfunctions.net/getHolidays';
-
-/* 공공데이터포털 API로 해당 연도 공휴일 로드 */
-async function loadHolidaysFromApi(year) {
-  const key = String(year);
-  if (holidayApiCache[key]) return; // 이미 로드됨
-  try {
-    const res = await fetch(`${FUNCTIONS_URL}?year=${year}`);
-    const data = await res.json();
-    if (!data.holidays) return;
-    holidayApiCache[key] = {};
-    data.holidays.forEach(h => {
-      // locdate: YYYYMMDD → YYYY-MM-DD
-      const ds = `${h.date.slice(0,4)}-${h.date.slice(4,6)}-${h.date.slice(6,8)}`;
-      holidayApiCache[key][ds] = {
-        name: h.name,
-        type: h.isHoliday ? 'holiday' : 'anniversary'
-      };
-    });
-    console.log(`${year}년 공휴일 API 로드 완료:`, Object.keys(holidayApiCache[key]).length, '건');
-  } catch(e) {
-    console.log(`${year}년 공휴일 API 실패, fallback 사용:`, e.message);
-  }
-}
+// API 캐시는 setupApp 위에서 선언됨
 
 // 24절기 (천문 계산 기반, 2024~2030)
 const SOLAR_TERMS = {
