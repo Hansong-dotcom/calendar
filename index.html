@@ -646,7 +646,11 @@ function setupApp() {
     allEvents = snap.val() || {};
     document.getElementById('sync-dot').classList.add('connected');
     document.getElementById('sync-label').textContent = '실시간 연결됨';
-    loadHolidaysFromApi(curY).then(() => renderAll());
+    // 올해 + 내년 공휴일 미리 로드 (달력 이동 시 즉시 표시)
+    Promise.all([
+      loadHolidaysFromApi(curY),
+      loadHolidaysFromApi(curY + 1),
+    ]).then(() => renderAll());
   }, () => {
     document.getElementById('sync-label').textContent = '연결 실패';
     toast('Firebase 연결에 실패했어요');
@@ -686,9 +690,21 @@ function setupApp() {
   };
 
   // 캘린더 네비
-  document.getElementById('prev').onclick   = () => { curM--; if(curM<0){curM=11;curY--;} loadHolidaysFromApi(curY).then(()=>{ renderCalendar(); renderLegend(); }); };
-  document.getElementById('next').onclick   = () => { curM++; if(curM>11){curM=0;curY++;} loadHolidaysFromApi(curY).then(()=>{ renderCalendar(); renderLegend(); }); };
-  document.getElementById('go-today').onclick = () => { curY=today.getFullYear(); curM=today.getMonth(); loadHolidaysFromApi(curY).then(()=>{ renderCalendar(); renderLegend(); }); };
+  document.getElementById('prev').onclick = () => {
+    curM--; if(curM<0){curM=11;curY--;}
+    renderCalendar(); renderLegend();
+    loadHolidaysFromApi(curY).then(()=>{ renderCalendar(); renderLegend(); });
+  };
+  document.getElementById('next').onclick = () => {
+    curM++; if(curM>11){curM=0;curY++;}
+    renderCalendar(); renderLegend();
+    loadHolidaysFromApi(curY).then(()=>{ renderCalendar(); renderLegend(); });
+  };
+  document.getElementById('go-today').onclick = () => {
+    curY=today.getFullYear(); curM=today.getMonth();
+    renderCalendar(); renderLegend();
+    loadHolidaysFromApi(curY).then(()=>{ renderCalendar(); renderLegend(); });
+  };
 }
 
 /* ══ PIN 변경 ══ */
