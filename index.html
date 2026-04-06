@@ -617,6 +617,8 @@ async function loadHolidaysFromApi(year) {
 /* ══════════════════════════════
    앱 초기화
 ══════════════════════════════ */
+let unsubscribeEvents = null; // 중복 구독 방지
+
 function setupApp() {
   // 현재 유저 배지
   const badge = document.getElementById('cur-badge');
@@ -635,14 +637,18 @@ function setupApp() {
   // 로그아웃
   document.getElementById('logout-btn').onclick = () => {
     sessionStorage.removeItem('loggedMember');
+    if (unsubscribeEvents) { unsubscribeEvents(); unsubscribeEvents = null; }
     currentUser = null; allEvents = {}; selDate = null; editKey = null;
     document.getElementById('app-screen').classList.remove('on');
     document.getElementById('detail-panel').style.display = 'none';
     showLogin();
   };
 
+  // 기존 구독 해제 후 재구독 (중복 방지)
+  if (unsubscribeEvents) { unsubscribeEvents(); unsubscribeEvents = null; }
+
   // Firebase 실시간 구독
-  onValue(ref(db,'events'), snap => {
+  unsubscribeEvents = onValue(ref(db,'events'), snap => {
     allEvents = snap.val() || {};
     document.getElementById('sync-dot').classList.add('connected');
     document.getElementById('sync-label').textContent = '실시간 연결됨';
