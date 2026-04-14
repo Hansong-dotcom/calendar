@@ -444,20 +444,23 @@ const VAPID_KEY = "BPwDO60tsPSugzqgdpFiJb2MZEjzrtmZs4XTeAc4PEkmLz6ZbMwaCLTIMp6Uu
 /* ── FCM 토큰 등록 ── */
 async function registerPushToken(memberId) {
   try {
-    // 서비스워커 등록
     const swReg = await navigator.serviceWorker.register("/calendar/firebase-messaging-sw.js");
-    // 알림 권한 요청
     const permission = await Notification.requestPermission();
     if (permission !== "granted") {
       console.log("알림 권한 거부됨");
       return;
     }
-    // FCM 토큰 발급
     const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: swReg });
     if (token) {
-      // Firebase에 토큰 저장 (멤버별 기기 토큰)
-      await update(ref(db, `fcmTokens/${memberId}`), { [btoa(token).slice(0,20)]: token });
-      console.log("FCM 토큰 등록 완료");
+      // 기기 고유 키 생성 (localStorage에 저장해서 항상 같은 키 사용)
+      let deviceId = localStorage.getItem('fcm_device_id');
+      if (!deviceId) {
+        deviceId = 'dev_' + Math.random().toString(36).slice(2, 12);
+        localStorage.setItem('fcm_device_id', deviceId);
+      }
+      // 같은 기기면 항상 같은 키로 덮어씀 → 중복 방지
+      await update(ref(db, `fcmTokens/${memberId}`), { [deviceId]: token });
+      console.log("FCM 토큰 등록 완료:", deviceId);
     }
   } catch (e) {
     console.log("FCM 등록 실패:", e);
