@@ -1,24 +1,55 @@
-importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js");
-importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js");
+/*
+  가족 캘린더 Service Worker v20260416
+  
+  Firebase Messaging SDK를 SW에서 제거하고,
+  순수 Web Push API로 알림을 1번만 표시한다.
+  
+  FCM 토큰 관리는 프론트엔드(index.html)의 Firebase SDK가 담당하므로
+  SW에서는 push 수신 + 알림 표시만 하면 된다.
+*/
 
-firebase.initializeApp({
-  apiKey:            "AIzaSyBZbMt-2k65C5fVPdGHtF_fa1Lw3CDZj5Y",
-  authDomain:        "hansong2ne-calendar.firebaseapp.com",
-  databaseURL:       "https://hansong2ne-calendar-default-rtdb.firebaseio.com",
-  projectId:         "hansong2ne-calendar",
-  storageBucket:     "hansong2ne-calendar.firebasestorage.app",
-  messagingSenderId: "737884329068",
-  appId:             "1:737884329068:web:8a274de25a45d71385b449"
+// push 이벤트 수신 → 알림 1번 표시
+self.addEventListener("push", (event) => {
+  let title = "가족 캘린더";
+  let body = "";
+  let icon = "/calendar/icon-192.png";
+
+  try {
+    const payload = event.data?.json();
+    if (payload) {
+      const noti = payload.notification || {};
+      const data = payload.data || {};
+      title = noti.title || data.title || title;
+      body  = noti.body  || data.body  || body;
+      icon  = noti.icon  || icon;
+    }
+  } catch (e) {
+    const text = event.data?.text();
+    if (text) body = text;
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body,
+      icon,
+      badge: "/calendar/icon-192.png",
+    })
+  );
 });
 
-const messaging = firebase.messaging();
-
-// 백그라운드 알림 수신 (앱이 닫혀있을 때)
-messaging.onBackgroundMessage(payload => {
-  const { title, body } = payload.notification;
-  self.registration.showNotification(title, {
-    body,
-    icon: "/calendar/icon-192.png",
-    badge: "/calendar/icon-192.png",
-  });
+// 알림 클릭 → 캘린더 열기
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((windowClients) => {
+      for (const client of windowClients) {
+        if (client.url.includes("/calendar") && "focus" in client) {
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow("/calendar/");
+      }
+    })
+  );
 });

@@ -1,9 +1,15 @@
 const { onValueCreated, onValueDeleted, onValueUpdated } = require("firebase-functions/v2/database");
+const { onRequest } = require("firebase-functions/v2/https");
+const { onSchedule } = require("firebase-functions/v2/scheduler");
+const { defineSecret } = require("firebase-functions/params");
 const { initializeApp } = require("firebase-admin/app");
 const { getMessaging } = require("firebase-admin/messaging");
 const { getDatabase } = require("firebase-admin/database");
+const https = require("https");
 
 initializeApp();
+
+const HOLIDAY_API_KEY = defineSecret("HOLIDAY_API_KEY");
 
 const MEMBERS = {
   dad:   { label: "아빠", emoji: "👨" },
@@ -11,58 +17,156 @@ const MEMBERS = {
   child: { label: "딸",   emoji: "👧" },
 };
 
-/* ── 토큰 전체 조회 (발송자 제외) ── */
+/* ── 전체 토큰 조회 (멤버당 1개) ── */
+async function getAllTokens() {
+  const db = getDatabase();
+  const snap = await db.ref("fcmTokens").get();
+  if (!snap.exists()) return [];
+  const tokens = [];
+  snap.forEach(memberSnap => {
+    const first = Object.values(memberSnap.val() || {}).find(t => t);
+    if (first) tokens.push(first);
+  });
+  return tokens;
+}
+
+/* ── 발송자 제외 토큰 조회 (멤버당 1개) ── */
 async function getTokens(excludeMemberId) {
   const db = getDatabase();
   const snap = await db.ref("fcmTokens").get();
   if (!snap.exists()) return [];
   const tokens = [];
   snap.forEach(memberSnap => {
-    if (memberSnap.key === excludeMemberId) return; // 본인 제외
-    memberSnap.forEach(tokenSnap => {
-      const t = tokenSnap.val();
-      if (t) tokens.push(t);
-    });
+    if (memberSnap.key === excludeMemberId) return;
+    const first = Object.values(memberSnap.val() || {}).find(t => t);
+    if (first) tokens.push(first);
   });
   return tokens;
 }
 
-/* ── 알림 발송 ── */
+/* ── 푸시 발송 ──
+   webpush.notification만 사용 (최상위 notification 없음)
+   → 브라우저가 push 이벤트를 SW에 전달
+   → SW에서 직접 showNotification 1번만 호출
+   
+   ※ 최상위 notification을 넣으면 FCM SDK가 자동으로 알림을 추가 생성해서 2번 됨
+   ※ webpush.notification은 push 이벤트의 payload.json()으로 전달되므로
+     브라우저 닫혀있어도 SW가 받을 수 있음
+*/
 async function sendPush(tokens, title, body) {
   if (!tokens.length) return;
   const messaging = getMessaging();
-  // 토큰을 500개씩 나눠서 발송 (FCM 제한)
   const chunks = [];
-  for (let i = 0; i < tokens.length; i += 500) {
-    chunks.push(tokens.slice(i, i + 500));
-  }
+  for (let i = 0; i < tokens.length; i += 500) chunks.push(tokens.slice(i, i + 500));
   for (const chunk of chunks) {
     await messaging.sendEachForMulticast({
       tokens: chunk,
-      notification: { title, body },
       webpush: {
         notification: {
           title,
           body,
-          icon: "/icon-192.png",
-          badge: "/icon-192.png",
+          icon: "/calendar/icon-192.png",
+          badge: "/calendar/icon-192.png",
         },
-        fcmOptions: { link: "/" },
+        fcmOptions: { link: "/calendar/" },
       },
     });
   }
 }
 
-/* ── 날짜 포맷 ── */
 function formatDate(dateStr) {
   if (!dateStr) return "";
   const [, m, d] = dateStr.split("-");
   return `${parseInt(m)}/${parseInt(d)}`;
 }
 
-/* ════════════════════════════
-   일정 추가
-════════════════════════════ */
+/* ── 한국 시간 오늘 날짜 (YYYY-MM-DD) ── */
+function getTodayKST() {
+  const now = new Date();
+  const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  const y = kst.getUTCFullYear();
+  const m = String(kst.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(kst.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+/* ════════════════════════════════════════
+   매일 오전 8시 당일 일정 알림
+   (KST 08:00 = UTC 23:00 전날)
+════════════════════════════════════════ */
+exports.morningReminder = onSchedule(
+  { schedule: "0 23 * * *", timeZone: "UTC", region: "us-central1" },
+  async () => {
+    const todayStr = getTodayKST();
+    const db = getDatabase();
+    const snap = await db.ref("events").get();
+    if (!snap.exists()) return;
+
+    const todayEvts = [];
+    snap.forEach(child => {
+      const e = child.val();
+      if (e && e.date === todayStr) {
+        todayEvts.push(e);
+      }
+    });
+
+    if (!todayEvts.length) {
+      console.log(`${todayStr} 오늘 일정 없음`);
+      return;
+    }
+
+    todayEvts.sort((a, b) => (a.time || "ZZ:ZZ").localeCompare(b.time || "ZZ:ZZ"));
+
+    const lines = todayEvts.map(e => {
+      const mem = MEMBERS[e.member] || { emoji: "📅", label: "" };
+      return `${mem.emoji} ${e.title}${e.time ? " " + e.time : ""}`;
+    });
+
+    const title = `📅 오늘 일정 ${todayEvts.length}개`;
+    const body = lines.slice(0, 3).join(" / ") + (todayEvts.length > 3 ? ` 외 ${todayEvts.length - 3}건` : "");
+
+    const tokens = await getAllTokens();
+    await sendPush(tokens, title, body);
+    console.log(`오전 알림 발송: ${todayEvts.length}건 → ${tokens.length}명`);
+  }
+);
+
+
+exports.getHolidays = onRequest(
+  { region: "us-central1", secrets: [HOLIDAY_API_KEY], cors: true },
+  async (req, res) => {
+    const year  = req.query.year;
+    const month = req.query.month ? String(req.query.month).padStart(2, "0") : null;
+    if (!year) { res.status(400).json({ error: "year 파라미터가 필요해요" }); return; }
+    const apiKey = HOLIDAY_API_KEY.value();
+    const baseUrl = "apis.data.go.kr";
+    const path = month
+      ? `/B090041/openapi/service/SpcdeInfoService/getRestDeInfo?solYear=${year}&solMonth=${month}&ServiceKey=${apiKey}&_type=json&numOfRows=30`
+      : `/B090041/openapi/service/SpcdeInfoService/getRestDeInfo?solYear=${year}&ServiceKey=${apiKey}&_type=json&numOfRows=100`;
+    try {
+      const data = await new Promise((resolve, reject) => {
+        https.get({ hostname: baseUrl, path, headers: { "Accept": "application/json" } }, (response) => {
+          let body = "";
+          response.on("data", chunk => body += chunk);
+          response.on("end", () => { try { resolve(JSON.parse(body)); } catch (e) { reject(new Error("파싱실패: " + body.slice(0,200))); } });
+        }).on("error", reject);
+      });
+      const items = data?.response?.body?.items?.item;
+      if (!items) { res.json({ holidays: [] }); return; }
+      const list = Array.isArray(items) ? items : [items];
+      const holidays = list.map(item => ({
+        date: String(item.locdate),
+        name: item.dateName,
+        isHoliday: item.isHoliday === "Y",
+      }));
+      res.json({ holidays });
+    } catch (e) {
+      console.error("공휴일 API 오류:", e);
+      res.status(500).json({ error: e.message });
+    }
+  }
+);
+
 exports.onEventCreated = onValueCreated(
   { ref: "/events/{eventId}", region: "us-central1" },
   async (event) => {
@@ -70,18 +174,10 @@ exports.onEventCreated = onValueCreated(
     if (!data) return;
     const member = MEMBERS[data.member] || { label: "누군가", emoji: "📅" };
     const tokens = await getTokens(data.member);
-    const dateStr = formatDate(data.date);
-    await sendPush(
-      tokens,
-      `${member.emoji} ${member.label}가 일정을 추가했어요`,
-      `${dateStr} ${data.title}${data.time ? " · " + data.time : ""}`
-    );
+    await sendPush(tokens, `${member.emoji} ${member.label}가 일정을 추가했어요`, `${formatDate(data.date)} ${data.title}${data.time ? " · " + data.time : ""}`);
   }
 );
 
-/* ════════════════════════════
-   일정 삭제
-════════════════════════════ */
 exports.onEventDeleted = onValueDeleted(
   { ref: "/events/{eventId}", region: "us-central1" },
   async (event) => {
@@ -89,18 +185,10 @@ exports.onEventDeleted = onValueDeleted(
     if (!data) return;
     const member = MEMBERS[data.member] || { label: "누군가", emoji: "📅" };
     const tokens = await getTokens(data.member);
-    const dateStr = formatDate(data.date);
-    await sendPush(
-      tokens,
-      `${member.emoji} ${member.label}가 일정을 삭제했어요`,
-      `${dateStr} ${data.title}`
-    );
+    await sendPush(tokens, `${member.emoji} ${member.label}가 일정을 삭제했어요`, `${formatDate(data.date)} ${data.title}`);
   }
 );
 
-/* ════════════════════════════
-   일정 수정
-════════════════════════════ */
 exports.onEventUpdated = onValueUpdated(
   { ref: "/events/{eventId}", region: "us-central1" },
   async (event) => {
@@ -108,11 +196,6 @@ exports.onEventUpdated = onValueUpdated(
     if (!after) return;
     const member = MEMBERS[after.member] || { label: "누군가", emoji: "📅" };
     const tokens = await getTokens(after.member);
-    const dateStr = formatDate(after.date);
-    await sendPush(
-      tokens,
-      `${member.emoji} ${member.label}가 일정을 수정했어요`,
-      `${dateStr} ${after.title}${after.time ? " · " + after.time : ""}`
-    );
+    await sendPush(tokens, `${member.emoji} ${member.label}가 일정을 수정했어요`, `${formatDate(after.date)} ${after.title}${after.time ? " · " + after.time : ""}`);
   }
 );
