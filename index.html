@@ -402,6 +402,14 @@ const VAPID_KEY = "BPwDO60tsPSugzqgdpFiJb2MZEjzrtmZs4XTeAc4PEkmLz6ZbMwaCLTIMp6Uu
 /* ── FCM 토큰 등록 ── */
 async function registerPushToken(memberId) {
   try {
+    // v20260420: 기존 SW 강제 갱신 — 이전 캐시된 SW를 해제하고 새로 등록
+    const SW_VERSION = '20260420';
+    if (localStorage.getItem('sw_version') !== SW_VERSION) {
+      const oldRegs = await navigator.serviceWorker.getRegistrations();
+      for (const r of oldRegs) await r.unregister();
+      localStorage.setItem('sw_version', SW_VERSION);
+      console.log('SW 강제 갱신 완료: v' + SW_VERSION);
+    }
     const swReg = await navigator.serviceWorker.register("/calendar/firebase-messaging-sw.js", { updateViaCache: "none" });
     const permission = await Notification.requestPermission();
     if (permission !== "granted") {
