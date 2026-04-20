@@ -1104,6 +1104,7 @@ if (saved) {
   const m = MEMBERS.find(x=>x.id===saved);
   if (m) {
     currentUser=m;
+    document.getElementById('loading').classList.add('hidden');
     document.getElementById('login-screen').style.display='none';
     document.getElementById('app-screen').classList.add('on');
     setupApp();
