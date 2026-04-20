@@ -403,7 +403,7 @@ const VAPID_KEY = "BPwDO60tsPSugzqgdpFiJb2MZEjzrtmZs4XTeAc4PEkmLz6ZbMwaCLTIMp6Uu
 async function registerPushToken(memberId) {
   try {
     // v20260420: 기존 SW 강제 갱신 — 이전 캐시된 SW를 해제하고 새로 등록
-    const SW_VERSION = '20260420';
+    const SW_VERSION = '20260421';
     if (localStorage.getItem('sw_version') !== SW_VERSION) {
       const oldRegs = await navigator.serviceWorker.getRegistrations();
       for (const r of oldRegs) await r.unregister();

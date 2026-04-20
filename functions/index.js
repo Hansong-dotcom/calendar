@@ -12,9 +12,9 @@ initializeApp();
 const HOLIDAY_API_KEY = defineSecret("HOLIDAY_API_KEY");
 
 const MEMBERS = {
-  dad:   { label: "아빠", emoji: "👨" },
-  mom:   { label: "엄마", emoji: "👩" },
-  child: { label: "딸",   emoji: "👧" },
+  dad:   { label: "아빠", emoji: "👨", subj: "가" },
+  mom:   { label: "엄마", emoji: "👩", subj: "가" },
+  child: { label: "딸",   emoji: "👧", subj: "이" },
 };
 
 /* ── 전체 토큰 조회 (멤버당 1개) ── */
@@ -30,34 +30,11 @@ async function getAllTokens() {
   return tokens;
 }
 
-/* ── 발송자 제외 토큰 조회 (멤버당 1개) ── */
-async function getTokens(excludeMemberId) {
-  const db = getDatabase();
-  const snap = await db.ref("fcmTokens").get();
-  if (!snap.exists()) return [];
-  const tokens = [];
-  snap.forEach(memberSnap => {
-    if (memberSnap.key === excludeMemberId) return;
-    const first = Object.values(memberSnap.val() || {}).find(t => t);
-    if (first) tokens.push(first);
-  });
-  return tokens;
-}
-
-/* ── 푸시 발송 (data-only) ──
-   
-   ★ 왜 data-only인가:
-   notification 또는 webpush.notification을 포함하면
-   브라우저가 "자동으로" 알림을 1번 표시하고,
-   SW의 push 이벤트에서 showNotification을 호출하면 또 1번 → 합계 2번.
-   
-   data-only로 보내면 브라우저 자동 표시가 없고,
-   SW의 push 이벤트에서만 showNotification → 정확히 1번.
-   
-   ★ 브라우저 꺼져있을 때:
-   모바일에서는 브라우저가 완전히 종료되지 않는 한
-   (백그라운드/최소화 상태) SW가 push를 수신할 수 있음.
-   PWA로 설치된 경우 더 안정적.
+/* ── 푸시 발송 ──
+   webpush.notification만 사용 (최상위 notification 없음)
+   → 브라우저가 webpush notification을 직접 표시 = 정확히 1번
+   → SW에서는 showNotification을 호출하지 않음 (중복 방지)
+   → 브라우저 꺼져있어도 전달됨 (data-only와 달리)
 */
 async function sendPush(tokens, title, body) {
   if (!tokens.length) return;
@@ -67,7 +44,15 @@ async function sendPush(tokens, title, body) {
   for (const chunk of chunks) {
     await messaging.sendEachForMulticast({
       tokens: chunk,
-      data: { title, body },
+      webpush: {
+        notification: {
+          title,
+          body,
+          icon: "/calendar/icon-192.png",
+          badge: "/calendar/icon-192.png",
+        },
+        fcmOptions: { link: "/calendar/" },
+      },
     });
   }
 }
@@ -170,9 +155,9 @@ exports.onEventCreated = onValueCreated(
   async (event) => {
     const data = event.data.val();
     if (!data) return;
-    const member = MEMBERS[data.member] || { label: "누군가", emoji: "📅" };
-    const tokens = await getTokens(data.member);
-    await sendPush(tokens, `${member.emoji} ${member.label}가 일정을 추가했어요`, `${formatDate(data.date)} ${data.title}${data.time ? " · " + data.time : ""}`);
+    const member = MEMBERS[data.member] || { label: "누군가", emoji: "📅", subj: "가" };
+    const tokens = await getAllTokens();
+    await sendPush(tokens, `${member.emoji} ${member.label}${member.subj} 일정을 추가했어요`, `${formatDate(data.date)} ${data.title}${data.time ? " · " + data.time : ""}`);
   }
 );
 
@@ -181,9 +166,9 @@ exports.onEventDeleted = onValueDeleted(
   async (event) => {
     const data = event.data.val();
     if (!data) return;
-    const member = MEMBERS[data.member] || { label: "누군가", emoji: "📅" };
-    const tokens = await getTokens(data.member);
-    await sendPush(tokens, `${member.emoji} ${member.label}가 일정을 삭제했어요`, `${formatDate(data.date)} ${data.title}`);
+    const member = MEMBERS[data.member] || { label: "누군가", emoji: "📅", subj: "가" };
+    const tokens = await getAllTokens();
+    await sendPush(tokens, `${member.emoji} ${member.label}${member.subj} 일정을 삭제했어요`, `${formatDate(data.date)} ${data.title}`);
   }
 );
 
@@ -192,8 +177,8 @@ exports.onEventUpdated = onValueUpdated(
   async (event) => {
     const after = event.data.after.val();
     if (!after) return;
-    const member = MEMBERS[after.member] || { label: "누군가", emoji: "📅" };
-    const tokens = await getTokens(after.member);
-    await sendPush(tokens, `${member.emoji} ${member.label}가 일정을 수정했어요`, `${formatDate(after.date)} ${after.title}${after.time ? " · " + after.time : ""}`);
+    const member = MEMBERS[after.member] || { label: "누군가", emoji: "📅", subj: "가" };
+    const tokens = await getAllTokens();
+    await sendPush(tokens, `${member.emoji} ${member.label}${member.subj} 일정을 수정했어요`, `${formatDate(after.date)} ${after.title}${after.time ? " · " + after.time : ""}`);
   }
 );
