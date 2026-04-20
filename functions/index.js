@@ -44,14 +44,20 @@ async function getTokens(excludeMemberId) {
   return tokens;
 }
 
-/* ── 푸시 발송 ──
-   webpush.notification만 사용 (최상위 notification 없음)
-   → 브라우저가 push 이벤트를 SW에 전달
-   → SW에서 직접 showNotification 1번만 호출
+/* ── 푸시 발송 (data-only) ──
    
-   ※ 최상위 notification을 넣으면 FCM SDK가 자동으로 알림을 추가 생성해서 2번 됨
-   ※ webpush.notification은 push 이벤트의 payload.json()으로 전달되므로
-     브라우저 닫혀있어도 SW가 받을 수 있음
+   ★ 왜 data-only인가:
+   notification 또는 webpush.notification을 포함하면
+   브라우저가 "자동으로" 알림을 1번 표시하고,
+   SW의 push 이벤트에서 showNotification을 호출하면 또 1번 → 합계 2번.
+   
+   data-only로 보내면 브라우저 자동 표시가 없고,
+   SW의 push 이벤트에서만 showNotification → 정확히 1번.
+   
+   ★ 브라우저 꺼져있을 때:
+   모바일에서는 브라우저가 완전히 종료되지 않는 한
+   (백그라운드/최소화 상태) SW가 push를 수신할 수 있음.
+   PWA로 설치된 경우 더 안정적.
 */
 async function sendPush(tokens, title, body) {
   if (!tokens.length) return;
@@ -61,15 +67,7 @@ async function sendPush(tokens, title, body) {
   for (const chunk of chunks) {
     await messaging.sendEachForMulticast({
       tokens: chunk,
-      webpush: {
-        notification: {
-          title,
-          body,
-          icon: "/calendar/icon-192.png",
-          badge: "/calendar/icon-192.png",
-        },
-        fcmOptions: { link: "/calendar/" },
-      },
+      data: { title, body },
     });
   }
 }
