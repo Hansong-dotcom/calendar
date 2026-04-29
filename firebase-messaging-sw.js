@@ -1,14 +1,44 @@
 /*
-  가족 캘린더 Service Worker v20260421
+  가족 캘린더 Service Worker v20260429
 
-  서버에서 webpush.notification으로 전송하면
-  브라우저가 자동으로 알림을 1번 표시한다.
-  
-  따라서 SW에서는 showNotification을 호출하지 않는다.
-  이 SW는 알림 클릭 처리를 위해서만 존재한다.
+  서버에서 data-only payload로 전송.
+  이 SW의 push 이벤트에서 showNotification을 정확히 1번 호출.
+  Firebase SDK 없음 → 자동 알림 생성 없음 → 중복 없음.
 */
 
-// 알림 클릭 → 캘린더 열기
+self.addEventListener("push", (event) => {
+  let title = "가족 캘린더";
+  let body = "";
+  let icon = "/calendar/icon-192.png";
+
+  if (event.data) {
+    try {
+      const payload = event.data.json();
+      // FCM data-only: payload.data에 title, body 포함
+      if (payload.data) {
+        title = payload.data.title || title;
+        body  = payload.data.body  || body;
+        icon  = payload.data.icon  || icon;
+      }
+      // FCM notification fallback
+      if (payload.notification) {
+        title = payload.notification.title || title;
+        body  = payload.notification.body  || body;
+      }
+    } catch (e) {
+      body = event.data.text() || "";
+    }
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body,
+      icon,
+      badge: "/calendar/icon-192.png",
+    })
+  );
+});
+
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   event.waitUntil(

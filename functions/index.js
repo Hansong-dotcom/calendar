@@ -17,17 +17,20 @@ const MEMBERS = {
   child: { label: "딸",   emoji: "👧", subj: "이" },
 };
 
-/* ── 전체 토큰 조회 (멤버당 1개) ── */
+/* ── 전체 토큰 조회 (멤버별 전체 토큰) ── */
 async function getAllTokens() {
   const db = getDatabase();
   const snap = await db.ref("fcmTokens").get();
   if (!snap.exists()) return [];
   const tokens = [];
   snap.forEach(memberSnap => {
-    const first = Object.values(memberSnap.val() || {}).find(t => t);
-    if (first) tokens.push(first);
+    const memberTokens = memberSnap.val() || {};
+    Object.values(memberTokens).forEach(t => {
+      if (t && typeof t === 'string') tokens.push(t);
+    });
   });
-  return tokens;
+  // 중복 제거
+  return [...new Set(tokens)];
 }
 
 /* ── 푸시 발송 ──
@@ -39,21 +42,40 @@ async function getAllTokens() {
 async function sendPush(tokens, title, body) {
   if (!tokens.length) return;
   const messaging = getMessaging();
+  const db = getDatabase();
   const chunks = [];
   for (let i = 0; i < tokens.length; i += 500) chunks.push(tokens.slice(i, i + 500));
   for (const chunk of chunks) {
-    await messaging.sendEachForMulticast({
+    const response = await messaging.sendEachForMulticast({
       tokens: chunk,
-      webpush: {
-        notification: {
-          title,
-          body,
-          icon: "/calendar/icon-192.png",
-          badge: "/calendar/icon-192.png",
-        },
-        fcmOptions: { link: "/calendar/" },
-      },
+      data: { title, body, icon: "/calendar/icon-192.png" },
     });
+    // 실패한 토큰 자동 정리
+    if (response.failureCount > 0) {
+      const snap = await db.ref("fcmTokens").get();
+      if (snap.exists()) {
+        const updates = {};
+        response.responses.forEach((resp, idx) => {
+          if (!resp.success) {
+            const failedToken = chunk[idx];
+            console.log(`토큰 실패 정리: ${failedToken.substring(0, 20)}... (${resp.error?.code})`);
+            // DB에서 해당 토큰 삭제
+            snap.forEach(memberSnap => {
+              const memberTokens = memberSnap.val() || {};
+              Object.entries(memberTokens).forEach(([key, val]) => {
+                if (val === failedToken) {
+                  updates[`fcmTokens/${memberSnap.key}/${key}`] = null;
+                }
+              });
+            });
+          }
+        });
+        if (Object.keys(updates).length > 0) {
+          await db.ref().update(updates);
+          console.log(`만료 토큰 ${Object.keys(updates).length}개 삭제`);
+        }
+      }
+    }
   }
 }
 
@@ -153,32 +175,54 @@ exports.getHolidays = onRequest(
 exports.onEventCreated = onValueCreated(
   { ref: "/events/{eventId}", region: "us-central1" },
   async (event) => {
-    const data = event.data.val();
-    if (!data) return;
-    const member = MEMBERS[data.member] || { label: "누군가", emoji: "📅", subj: "가" };
-    const tokens = await getAllTokens();
-    await sendPush(tokens, `${member.emoji} ${member.label}${member.subj} 일정을 추가했어요`, `${formatDate(data.date)} ${data.title}${data.time ? " · " + data.time : ""}`);
+    try {
+      console.log("[onEventCreated] 트리거됨", event.params.eventId);
+      const data = event.data.val();
+      if (!data) { console.log("[onEventCreated] data 없음, 종료"); return; }
+      console.log("[onEventCreated] 일정:", JSON.stringify({ title: data.title, member: data.member, date: data.date }));
+      const member = MEMBERS[data.member] || { label: "누군가", emoji: "📅", subj: "가" };
+      const tokens = await getAllTokens();
+      console.log("[onEventCreated] 토큰 수:", tokens.length);
+      const result = await sendPush(tokens, `${member.emoji} ${member.label}${member.subj} 일정을 추가했어요`, `${formatDate(data.date)} ${data.title}${data.time ? " · " + data.time : ""}`);
+      console.log("[onEventCreated] 발송 완료");
+    } catch (e) {
+      console.error("[onEventCreated] 에러:", e);
+    }
   }
 );
 
 exports.onEventDeleted = onValueDeleted(
   { ref: "/events/{eventId}", region: "us-central1" },
   async (event) => {
-    const data = event.data.val();
-    if (!data) return;
-    const member = MEMBERS[data.member] || { label: "누군가", emoji: "📅", subj: "가" };
-    const tokens = await getAllTokens();
-    await sendPush(tokens, `${member.emoji} ${member.label}${member.subj} 일정을 삭제했어요`, `${formatDate(data.date)} ${data.title}`);
+    try {
+      console.log("[onEventDeleted] 트리거됨", event.params.eventId);
+      const data = event.data.val();
+      if (!data) { console.log("[onEventDeleted] data 없음, 종료"); return; }
+      const member = MEMBERS[data.member] || { label: "누군가", emoji: "📅", subj: "가" };
+      const tokens = await getAllTokens();
+      console.log("[onEventDeleted] 토큰 수:", tokens.length);
+      await sendPush(tokens, `${member.emoji} ${member.label}${member.subj} 일정을 삭제했어요`, `${formatDate(data.date)} ${data.title}`);
+      console.log("[onEventDeleted] 발송 완료");
+    } catch (e) {
+      console.error("[onEventDeleted] 에러:", e);
+    }
   }
 );
 
 exports.onEventUpdated = onValueUpdated(
   { ref: "/events/{eventId}", region: "us-central1" },
   async (event) => {
-    const after = event.data.after.val();
-    if (!after) return;
-    const member = MEMBERS[after.member] || { label: "누군가", emoji: "📅", subj: "가" };
-    const tokens = await getAllTokens();
-    await sendPush(tokens, `${member.emoji} ${member.label}${member.subj} 일정을 수정했어요`, `${formatDate(after.date)} ${after.title}${after.time ? " · " + after.time : ""}`);
+    try {
+      console.log("[onEventUpdated] 트리거됨", event.params.eventId);
+      const after = event.data.after.val();
+      if (!after) { console.log("[onEventUpdated] after 없음, 종료"); return; }
+      const member = MEMBERS[after.member] || { label: "누군가", emoji: "📅", subj: "가" };
+      const tokens = await getAllTokens();
+      console.log("[onEventUpdated] 토큰 수:", tokens.length);
+      await sendPush(tokens, `${member.emoji} ${member.label}${member.subj} 일정을 수정했어요`, `${formatDate(after.date)} ${after.title}${after.time ? " · " + after.time : ""}`);
+      console.log("[onEventUpdated] 발송 완료");
+    } catch (e) {
+      console.error("[onEventUpdated] 에러:", e);
+    }
   }
 );
